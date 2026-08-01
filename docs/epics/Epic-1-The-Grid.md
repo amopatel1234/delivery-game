@@ -90,7 +90,9 @@ The calculations behind these values belong to later epics.
 
 ## Dependencies
 
-None.
+Epic 5 provides the canonical card definitions, seeded job model and generated grid data consumed by this epic.
+
+Epic 1 remains the first player-facing gameplay feature, but the foundational data contracts from Epic 5 must exist before production grid integration is complete. Temporary fixtures may be used while developing the grid and route-planning UI.
 
 ## User Stories
 
@@ -147,3 +149,4 @@ Use coordinate-based positions and constant-time orthogonal adjacency checks. Do
 - [Product Requirements Document](../PRD.md)
 - [Gameplay Rules](../Gameplay-Rules.md)
 - [Decision Log](../Decision-Log.md)
+- [Epic 5 – Deck and Seeded Job Generation](Epic-5-Deck-and-Card-Generation.md)
