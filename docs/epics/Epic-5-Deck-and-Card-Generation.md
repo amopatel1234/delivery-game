@@ -226,5 +226,5 @@ Because generator changes can invalidate accepted seeds, include a generator-ver
 - [Decision Log](../Decision-Log.md)
 - [Epic 1 – The Grid](Epic-1-The-Grid.md)
 - [Epic 2 – Route Planning](Epic-2-Route-Planning.md)
-- [Epic 3 – Execution and Hazard Resolution](Epic-3-Hazard-System.md)
+- [Epic 3 – Execution and Hazard Resolution](Epic-3-Execution-and-Hazard-Resolution.md)
 - [Epic 4 – Economy and Outcome](Epic-4-Economy-and-Outcome.md)
