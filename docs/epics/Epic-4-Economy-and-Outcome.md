@@ -53,11 +53,23 @@ Calculate the result from immutable execution data containing at least:
 
 Do not recalculate hazards or consume additional random values during settlement.
 
+### Timing Outcomes
+
+Apply the canonical timing rules exactly:
+
+- **Before Target Time:** completed with an early bonus.
+- **At Target Time:** completed with no early bonus and no lateness penalty.
+- **After Target Time but before Deadline:** completed with a lateness penalty.
+- **At or after Deadline:** failed with zero payout.
+
+Target Time and Deadline are distinct boundaries and must be tested independently.
+
 ### Completed and Failed States
 
-- Mark a run as completed when the confirmed route reaches and resolves the destination within the accepted job-completion rules.
-- Mark a run as failed when the delivery cannot be completed according to the canonical gameplay rules.
+- Mark a run as completed only when the destination is resolved before the Deadline.
+- Mark a run as failed when the actual time is at or after the Deadline, or when the delivery otherwise cannot be completed according to the canonical gameplay rules.
 - Keep completed or failed status separate from payout quality.
+- A failed run always settles to zero payout.
 - Do not use star ratings.
 
 ### Reward Calculation
@@ -73,12 +85,14 @@ Initial shared MVP values are:
 
 Calculate components independently:
 
-- Start from the base reward when the job qualifies for payout.
-- Apply the early bonus when actual time is earlier than Target Time.
-- Apply the lateness penalty when actual time is later than the applicable threshold defined by the canonical rules.
-- Apply the damage penalty once per recorded damage event.
+- For a completed run, start from the base reward.
+- When actual time is before Target Time, calculate early minutes as `Target Time - actual time` and apply the early bonus.
+- When actual time equals Target Time, apply neither an early bonus nor a lateness penalty.
+- When actual time is after Target Time but before Deadline, calculate late minutes as `actual time - Target Time` and apply the lateness penalty.
+- Apply the damage penalty once per recorded damage event for completed runs.
 - Do not derive damage penalties from a persistent vehicle-condition value.
-- Clamp the final reward to the permitted range defined by the canonical gameplay rules.
+- For failed runs, set final reward to zero regardless of base reward, bonuses, lateness penalties or damage penalties.
+- Clamp every completed-run reward to a minimum of zero.
 
 Balancing values must be centrally configurable rather than embedded in views.
 
@@ -97,6 +111,8 @@ Produce a presentation-neutral result model containing:
 - Deadline.
 
 Use zero-valued components rather than hiding calculation state from the domain model. Presentation may omit rows that do not apply.
+
+For failed runs, the model must still preserve timing and damage information for explanation while final reward remains zero.
 
 ### Results Screen
 
@@ -146,6 +162,7 @@ The results screen must remain stable until the player chooses to continue or re
 - Epic 1 – The Grid.
 - Epic 2 – Route Planning.
 - Epic 3 – Execution and Hazard Resolution.
+- Epic 5 – Deck and Seeded Job Generation.
 - Job configuration containing timing and economy values.
 - Canonical reward and outcome rules.
 
@@ -157,7 +174,7 @@ As a player, I want to see whether the job succeeded and how the payout was calc
 
 ### Compare performance against job timing
 
-As a player, I want to compare my actual time with the Target Time and Deadline so that I understand bonuses and penalties.
+As a player, I want to compare my actual time with the Target Time and Deadline so that I understand bonuses, penalties and failure.
 
 ### Continue through the seeded jobs
 
@@ -170,7 +187,13 @@ As a tester, I want to select any seeded job after completing the sequence so th
 ## Acceptance Criteria
 
 - Settlement uses the execution result without consuming random values.
-- Completed or failed status is calculated deterministically.
+- A run completed before Target Time receives an early bonus.
+- A run completed exactly at Target Time receives neither an early bonus nor a lateness penalty.
+- A run completed after Target Time but before Deadline receives a lateness penalty.
+- A run finishing exactly at Deadline fails.
+- A run finishing after Deadline fails.
+- Every failed run settles to zero payout.
+- Every completed-run reward is clamped to a minimum of zero.
 - Base reward, early bonus, lateness penalty and damage penalty are calculated separately.
 - Damage penalty uses the recorded damage-event count.
 - The result contains no star rating.
@@ -196,9 +219,10 @@ Model seeded-job navigation separately from run execution. A job-session coordin
 
 - All acceptance criteria are met.
 - Unit tests cover completed and failed outcomes.
-- Unit tests cover early, on-target, late and damaged deliveries.
-- Boundary tests cover Target Time and Deadline transitions.
+- Unit tests cover early, exactly on target, late and damaged deliveries.
+- Boundary tests cover one unit before Target Time, exactly at Target Time, one unit after Target Time, one unit before Deadline, exactly at Deadline and after Deadline.
 - Tests cover multiple damage events and reward clamping.
+- Tests confirm every failed run pays zero.
 - Tests confirm settlement consumes no random values.
 - Tests confirm planning and settlement share economy rules.
 - UI tests cover result breakdown, sequential progression and seeded-job replay selection.
@@ -212,3 +236,4 @@ Model seeded-job navigation separately from run execution. A job-session coordin
 - [Epic 1 – The Grid](Epic-1-The-Grid.md)
 - [Epic 2 – Route Planning](Epic-2-Route-Planning.md)
 - [Epic 3 – Execution and Hazard Resolution](Epic-3-Hazard-System.md)
+- [Epic 5 – Deck and Seeded Job Generation](Epic-5-Deck-and-Card-Generation.md)
