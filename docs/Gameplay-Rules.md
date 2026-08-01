@@ -2,7 +2,7 @@
 
 ## Core Loop
 1. Load seeded job.
-2. Inspect fully revealed 5x5 grid.
+2. Inspect fully revealed 5×5 grid.
 3. Plan route.
 4. Confirm route.
 5. Simulate automatically.
@@ -10,7 +10,7 @@
 7. Show results.
 
 ## Grid
-- Fixed 5x5.
+- Fixed 5×5.
 - Depot top-left.
 - Destination bottom-right.
 - Orthogonal movement only.
@@ -32,6 +32,7 @@ Applies a fixed time delay.
 ### Heavy Traffic
 - 50% chance of a delay.
 - If delayed, 15% chance of a damage event.
+- Overall per-card damage probability is 7.5%.
 
 ### Roadworks
 Applies a fixed time delay.
@@ -41,13 +42,30 @@ Applies a fixed time delay.
 - Never delayed.
 - Never damaged.
 
-## Timing
-Each job defines:
-- Target Time.
-- Deadline.
+## Planning Risk
+Independent event probabilities are combined using:
 
-Target Time awards early bonuses.
-Deadline applies lateness penalties.
+`1 - product(1 - eventProbability)`
+
+### Delay Exposure
+- Low: below 25%.
+- Medium: 25% to below 50%.
+- High: 50% or above.
+
+### Damage Risk
+- Low: below 10%.
+- Medium: 10% to below 25%.
+- High: 25% or above.
+
+Delay exposure and damage risk are calculated and presented separately.
+
+## Timing and Outcome
+Each job defines a Target Time and a Deadline.
+
+- Before Target Time: completed with an early bonus.
+- At Target Time: completed with no early bonus.
+- After Target Time but before Deadline: completed with a lateness penalty.
+- At or after Deadline: failed with zero payout.
 
 ## Damage
 - Damage is run-scoped only.
@@ -55,11 +73,14 @@ Deadline applies lateness penalties.
 
 ## Reward
 The UI displays the maximum achievable reward for the planned route.
+
 Final reward is derived from:
 - Base reward.
 - Early bonus.
-- Late penalties.
+- Lateness penalty.
 - Damage penalties.
+
+Final reward cannot fall below zero.
 
 ## Jobs
 - Five deterministic seeded jobs for MVP.
