@@ -1,0 +1,117 @@
+# Fastlane configuration for Delivery Game.
+# Docs: https://docs.fastlane.tools
+
+default_platform(:ios)
+
+platform :ios do
+  PROJECT_NAME = "delivery-game.xcodeproj"
+  APP_IDENTIFIER = "amishpatel.delivery-game"
+  APP_TARGET = "delivery-game"
+  PROVISIONING_PROFILE_NAME = "Delivery Game App Store"
+  PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
+
+  desc "Run unit tests on the pinned iPhone 17 Pro simulator"
+  lane :runUnitTests do
+    required_vars = ["PROJECT_FILENAME", "SCHEME"]
+    required_vars.each do |var|
+      UI.user_error!("Missing required environment variable: #{var}") unless ENV[var]
+    end
+
+    run_tests(
+      project: ENV["PROJECT_FILENAME"],
+      scheme: ENV["SCHEME"],
+      destination: PINNED_TEST_DESTINATION,
+      ensure_devices_found: true,
+      result_bundle: true,
+    )
+  end
+
+  desc "Build and upload to TestFlight (no App Store submission)"
+  lane :deploy do
+    marketing_version = get_version_number(
+      xcodeproj: PROJECT_NAME,
+      target: APP_TARGET
+    )
+
+    UI.message("App Store marketing version (from Xcode): #{marketing_version}")
+
+    app_store_connect_api_key(
+      key_id: ENV["KEY_ID"],
+      issuer_id: ENV["ISSUER_ID"],
+      key_content: ENV["KEY_VALUE"]
+    )
+
+    password = SecureRandom.hex
+    keychain_name = "signing_temp"
+
+    create_keychain(
+      name: keychain_name,
+      password: password,
+      unlock: true
+    )
+
+    begin
+      import_certificate(
+        certificate_path: "distribution.p12",
+        certificate_password: ENV["CERTIFICATE_PASSWORD"],
+        keychain_password: password,
+        keychain_name: keychain_name
+      )
+
+      begin
+        latest_build = latest_testflight_build_number(
+          app_identifier: APP_IDENTIFIER,
+          version: marketing_version
+        )
+        build_number = latest_build + 1
+      rescue => e
+        UI.important("No TestFlight builds found for #{marketing_version}: #{e.message}")
+        build_number = 1
+      end
+
+      increment_build_number(
+        build_number: build_number,
+        xcodeproj: PROJECT_NAME
+      )
+
+      UI.message("Build number for #{marketing_version}: #{build_number}")
+
+      get_provisioning_profile(
+        readonly: true,
+        app_identifier: APP_IDENTIFIER,
+        provisioning_name: PROVISIONING_PROFILE_NAME
+      )
+
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        code_sign_identity: "Apple Distribution",
+        profile_name: PROVISIONING_PROFILE_NAME,
+        targets: APP_TARGET
+      )
+
+      ipa_path = gym(
+        project: PROJECT_NAME,
+        scheme: APP_TARGET,
+        export_method: "app-store",
+        destination: "generic/platform=iOS",
+        sdk: "iphoneos"
+      )
+
+      UI.success("Built IPA at: #{ipa_path}")
+
+      testing_notes_path = File.join(__dir__, "testing_notes.txt")
+      UI.user_error!("Missing #{testing_notes_path} — add What to Test notes before deploy") unless File.exist?(testing_notes_path)
+      testing_notes = File.read(testing_notes_path).strip
+      UI.user_error!("fastlane/testing_notes.txt is empty — add a short What to Test sentence before deploy") if testing_notes.empty?
+      UI.message("TestFlight What to Test notes:\n#{testing_notes}")
+
+      upload_to_testflight(
+        skip_submission: true,
+        app_platform: "ios",
+        changelog: testing_notes
+      )
+    ensure
+      delete_keychain(name: keychain_name)
+    end
+  end
+end
