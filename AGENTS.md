@@ -108,3 +108,5 @@ Repository secrets expected by `merged.yml`:
 Fastlane CI jobs set `LC_ALL=en_US.UTF-8` and `LANG=en_US.UTF-8` (required by Fastlane). Deploy also sets official ASC env vars (`APP_STORE_CONNECT_API_KEY_*`) with `IN_HOUSE=false`.
 
 Provisioning profile name: **Couriers Gambit App Store Profile**.
+
+TestFlight internal group: **`Internal`** (Fastlane `deploy` assigns builds after processing). Prefer also enabling **Automatic distribution** on that group in App Store Connect.
