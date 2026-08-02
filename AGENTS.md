@@ -10,6 +10,7 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 4. **Implementation epics:** [`docs/epics/`](docs/epics/)
 5. **Story catalogue (delivery scope):** [`docs/planning/story-catalogue/`](docs/planning/story-catalogue/)
 6. **Issues / PRs / CI workflow:** [`docs/planning/Delivery-Workflow.md`](docs/planning/Delivery-Workflow.md)
+7. **Project board sync:** when starting a story / opening a PR / merging, update **Delivery Game MVP** Status (In Progress → In Review → Done). Details: [`docs/planning/Delivery-Workflow.md`](docs/planning/Delivery-Workflow.md#project-board-sync-agents) and [`.cursor/rules/github-project-board.mdc`](.cursor/rules/github-project-board.mdc).
 
 When documents disagree, follow the precedence in [`docs/README.md`](docs/README.md).
 
