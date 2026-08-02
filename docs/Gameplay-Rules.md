@@ -23,19 +23,31 @@
 - Route cannot be edited after confirmation.
 
 ## Cards
+
+Initial balancing values (may change through playtesting without changing product scope):
+
+| Card | Base travel | Delay | Delay chance | Damage chance |
+|---|---:|---:|---:|---:|
+| Clear Road | 1 minute | — | — | — |
+| Light Traffic | 1 minute | +1 minute | Always | — |
+| Heavy Traffic | 1 minute | +2 minutes | 50% | 15% if delayed |
+| Roadworks | 1 minute | +2 minutes | Always | — |
+| Fast Lane | 0 minutes | — | — | — |
+
 ### Clear Road
-Normal travel.
+Applies normal travel time. Never delayed. Never damaged.
 
 ### Light Traffic
-Applies a fixed time delay.
+Applies normal travel time and its fixed delay. Never damaged.
 
 ### Heavy Traffic
+- Applies normal travel time.
 - 50% chance of a delay.
 - If delayed, 15% chance of a damage event.
 - Overall per-card damage probability is 7.5%.
 
 ### Roadworks
-Applies a fixed time delay.
+Applies normal travel time and its fixed delay. Never damaged.
 
 ### Fast Lane
 - Zero travel time.
