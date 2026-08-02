@@ -1,0 +1,1 @@
+Initial CI pipeline smoke build. Replace this note before the first real playtest upload.

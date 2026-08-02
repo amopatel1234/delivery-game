@@ -1,6 +1,6 @@
 # Delivery Workflow
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** Active  
 **Owner:** Delivery
 
@@ -67,7 +67,7 @@ A story is **Done** only when:
 
 ## Naming conventions
 
-**Issue**
+**Issue** (unchanged — not a commit subject)
 
 ```text
 [E5-S01] Card Rule Definitions
@@ -79,17 +79,36 @@ A story is **Done** only when:
 story/e5-s01-card-rule-definitions
 ```
 
-**PR**
+**Commit and PR title** — [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
-```text
-[E5-S01] Add canonical card rule definitions
-```
-
-**Commit**
+Story work uses the story ID as the scope:
 
 ```text
 feat(E5-S01): add canonical card definitions
 ```
+
+Planning / harness / tooling PRs omit the story scope:
+
+```text
+chore: add TestFlight merged workflow
+docs: clarify branch protection rules
+```
+
+Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
+
+Prefer **squash merge** so the squash commit subject is the PR title (one conventional commit on `main`).
+
+---
+
+## Local git hooks
+
+Install once per clone:
+
+```text
+git config core.hooksPath hooks
+```
+
+`hooks/commit-msg` rejects non-conventional subjects via `scripts/validate_conventional_commit.py`.
 
 ---
 
@@ -100,30 +119,77 @@ feat(E5-S01): add canonical card definitions
 | Story Catalogue | Defines the work, dependencies and acceptance criteria. |
 | GitHub Issues | Track execution status, assignees and blockers. |
 | Pull requests | Provide implementation evidence, AC checklist and validation commands. |
-| CI | Validates catalogue integrity and PR story traceability. |
+| CI | Validates catalogue integrity, conventional PR titles, story traceability, iOS build/tests, and TestFlight upload on merge. |
 | Project board | Reflects live status for humans; may mirror derived status. |
 
 ---
 
 ## CI enforcement
 
-- `story-catalogue-validation.yml` validates `stories.yml` on catalogue-related changes and pull requests.
-- `pr-traceability.yml` requires story ID naming on branches that start with `story/`. Planning and harness branches (for example `planning/*`) are skipped so meta-delivery work can land without a catalogue story ID.
+| Workflow | When | What |
+|---|---|---|
+| `story-catalogue-validation.yml` | Catalogue-related changes / PRs | Validates `stories.yml`. |
+| `pr-traceability.yml` | Every PR | Conventional Commit PR title for all branches; full story traceability for `story/*`. |
+| `pull-request.yml` | Non-draft PRs to `main` | iOS unit tests when `delivery-game.xcodeproj` is present. |
+| `merged.yml` | Push to `main` (app/fastlane paths) or `workflow_dispatch` | Sign, archive, upload to TestFlight. No GitHub Releases. |
+
+Versioning / GitHub Release automation is intentionally **not** used. Marketing version lives in Xcode; TestFlight build numbers increment from the latest uploaded build for that version.
+
+### TestFlight secrets (repository)
+
+Set these Actions secrets (same pattern as `what-to-make` / `Orbital-Drift`):
+
+| Secret | Purpose |
+|---|---|
+| `DISTRIBUTION_CERTIFICATE` | Base64-encoded Apple Distribution `.p12` |
+| `DISTRIBUTION_PASSWORD` | Password for that `.p12` |
+| `KEY_VALUE` | App Store Connect API key contents |
+
+`ISSUER_ID` and `KEY_ID` are set in `merged.yml`. The App Store provisioning profile name in Fastlane is `Couriers Gambit App Store Profile` for bundle ID `amishpatel.delivery-game`.
+
+Update `fastlane/testing_notes.txt` before merges that should ship a meaningful What to Test note.
+
+---
+
+## GitHub branch rules (manual)
+
+Apply a **ruleset** (or classic branch protection) on `main`. Suggested settings:
+
+1. **Require a pull request before merging**
+   - Require at least one approval when you have a reviewer; otherwise leave at 0 until then.
+   - Dismiss stale approvals on new commits (optional).
+2. **Require status checks to pass**
+   - `Validate PR title and story traceability`
+   - `Validate story catalogue` (when that workflow runs)
+   - `Build and unit tests` once the Xcode project is on `main`
+3. **Block force pushes** and **block deletions** on `main`.
+4. **Restrict commit metadata** → commit message must match Conventional Commits, e.g.
+
+   ```text
+   ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([A-Za-z0-9._/-]+\))?(!)?: .+
+   ```
+
+   This catches odd direct pushes and bad squash subjects. PR titles are still enforced by `pr-traceability.yml` (rulesets do not replace that check).
+5. **Merge strategy:** allow **squash merge** only (Settings → General → Pull Requests). That keeps `main` history aligned with conventional PR titles.
+
+Optional later: restrict who can push to `main` to the empty set (PR-only).
 
 ---
 
 ## Local validation
 
 ```text
-pip install pyyaml
-python -m unittest discover -s tests -v
-python scripts/validate_story_catalogue.py
-python scripts/validate_pr_traceability.py \
-  --title "[E5-S01] Example" \
+pip install -r requirements-dev.txt
+git config core.hooksPath hooks
+python3 -m unittest discover -s tests -v
+python3 scripts/validate_story_catalogue.py
+python3 scripts/validate_conventional_commit.py --message "feat(E5-S01): example"
+python3 scripts/validate_pr_traceability.py \
+  --title "feat(E5-S01): example" \
   --branch "story/e5-s01-example" \
   --body-file /path/to/body.md
-python scripts/story_status.py
-python scripts/story_status.py --json
+python3 scripts/story_status.py
+python3 scripts/story_status.py --json
 ```
 
 ---

@@ -46,25 +46,49 @@ class ValidatePrTraceabilityTests(unittest.TestCase):
 
     def test_valid_pr(self) -> None:
         errors = validate_pr(
-            title="[E5-S01] Add canonical card rule definitions",
+            title="feat(E5-S01): add canonical card rule definitions",
             branch="story/e5-s01-card-rule-definitions",
             body=VALID_BODY,
             registry_path=self.registry,
         )
         self.assertEqual(errors, [], msg="\n".join(errors))
 
-    def test_invalid_title(self) -> None:
+    def test_invalid_title_not_conventional(self) -> None:
         errors = validate_pr(
             title="Add card rules",
             branch="story/e5-s01-card-rule-definitions",
             body=VALID_BODY,
             registry_path=self.registry,
         )
-        self.assertTrue(any("PR title must begin" in e for e in errors), errors)
+        self.assertTrue(
+            any("Conventional Commits" in e for e in errors),
+            errors,
+        )
+
+    def test_legacy_bracket_title_rejected(self) -> None:
+        errors = validate_pr(
+            title="[E5-S01] Add canonical card rule definitions",
+            branch="story/e5-s01-card-rule-definitions",
+            body=VALID_BODY,
+            registry_path=self.registry,
+        )
+        self.assertTrue(
+            any("story scope" in e or "Conventional Commits" in e for e in errors),
+            errors,
+        )
+
+    def test_conventional_without_story_scope_rejected(self) -> None:
+        errors = validate_pr(
+            title="feat: add canonical card rule definitions",
+            branch="story/e5-s01-card-rule-definitions",
+            body=VALID_BODY,
+            registry_path=self.registry,
+        )
+        self.assertTrue(any("story scope" in e for e in errors), errors)
 
     def test_invalid_branch(self) -> None:
         errors = validate_pr(
-            title="[E5-S01] Add canonical card rule definitions",
+            title="feat(E5-S01): add canonical card rule definitions",
             branch="feature/card-rules",
             body=VALID_BODY,
             registry_path=self.registry,
@@ -74,7 +98,7 @@ class ValidatePrTraceabilityTests(unittest.TestCase):
     def test_missing_issue_link(self) -> None:
         body = VALID_BODY.replace("Closes #1", "Related to story work")
         errors = validate_pr(
-            title="[E5-S01] Add canonical card rule definitions",
+            title="feat(E5-S01): add canonical card rule definitions",
             branch="story/e5-s01-card-rule-definitions",
             body=body,
             registry_path=self.registry,
@@ -83,7 +107,7 @@ class ValidatePrTraceabilityTests(unittest.TestCase):
 
     def test_unknown_story_id(self) -> None:
         errors = validate_pr(
-            title="[E9-S99] Imaginary story",
+            title="feat(E9-S99): imaginary story",
             branch="story/e9-s99-imaginary",
             body=VALID_BODY.replace("E5-S01", "E9-S99"),
             registry_path=self.registry,
@@ -103,7 +127,7 @@ Closes #1
 Missing required sections.
 """
         errors = validate_pr(
-            title="[E5-S01] Add canonical card rule definitions",
+            title="feat(E5-S01): add canonical card rule definitions",
             branch="story/e5-s01-card-rule-definitions",
             body=body,
             registry_path=self.registry,

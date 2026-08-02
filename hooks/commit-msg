@@ -1,0 +1,6 @@
+#!/bin/sh
+# Enforce Conventional Commits on the subject line.
+# Install once per clone: git config core.hooksPath hooks
+set -e
+root="$(git rev-parse --show-toplevel)"
+exec python3 "$root/scripts/validate_conventional_commit.py" --message-file "$1"

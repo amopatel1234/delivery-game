@@ -18,8 +18,15 @@ except ImportError:  # pragma: no cover
     )
     sys.exit(2)
 
-STORY_ID_RE = re.compile(r"E\d+-S\d+")
-TITLE_RE = re.compile(r"^\[(E\d+-S\d+)\]")
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from validate_conventional_commit import (  # noqa: E402
+    parse_story_id_from_conventional_title,
+    validate_conventional_commit,
+)
+
 BRANCH_RE = re.compile(r"^story/(e\d+-s\d+)-")
 CLOSES_RE = re.compile(r"Closes\s+#\d+", re.IGNORECASE)
 REQUIRED_SECTIONS = (
@@ -77,19 +84,19 @@ def validate_pr(
     except yaml.YAMLError as exc:
         return [f"stories.yml failed to parse: {exc}"]
 
-    title_match = TITLE_RE.match(title.strip())
-    if not title_match:
+    title = title.strip()
+    errors.extend(validate_conventional_commit(title))
+    title_story_id = parse_story_id_from_conventional_title(title)
+    if title_story_id is None:
         errors.append(
-            "PR title must begin with [E<number>-S<number>], "
+            "PR title must use Conventional Commits with story scope, "
+            "e.g. 'feat(E5-S01): add canonical card definitions', "
             f"got {title!r}"
         )
-        title_story_id = None
-    else:
-        title_story_id = title_match.group(1)
-        if title_story_id not in by_id:
-            errors.append(
-                f"PR title story ID {title_story_id} is not in stories.yml"
-            )
+    elif title_story_id not in by_id:
+        errors.append(
+            f"PR title story ID {title_story_id} is not in stories.yml"
+        )
 
     branch_match = BRANCH_RE.match(branch.strip())
     if not branch_match:
