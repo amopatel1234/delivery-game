@@ -140,4 +140,5 @@ It does **not** query GitHub Project custom fields. If the Project board disagre
 
 - [Story Catalogue README](story-catalogue/README.md)
 - [Cross-Epic Dependencies](story-catalogue/Cross-Epic-Dependencies.md)
+- [GitHub Tracking Bootstrap](GitHub-Tracking-Bootstrap.md)
 - [Documentation index](../README.md)
