@@ -1,0 +1,315 @@
+# Machine-readable Story Catalogue registry.
+# Canonical scope and acceptance criteria remain in the Epic-*-Stories.md files.
+# See docs/planning/Delivery-Workflow.md and Cross-Epic-Dependencies.md.
+
+stories:
+  # Epic 5 — Foundation
+  - id: E5-S01
+    title: Card Rule Definitions
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies: []
+
+  - id: E5-S02
+    title: Shared Economy Configuration
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies: []
+
+  - id: E5-S03
+    title: Seeded Random Number Generator
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies: []
+
+  - id: E5-S04
+    title: Deck Recipe
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies:
+      - E5-S01
+
+  - id: E5-S05
+    title: Board Generator
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies:
+      - E5-S03
+      - E5-S04
+
+  - id: E5-S06
+    title: Seeded Job Catalogue
+    epic: 5
+    workstream: foundation
+    source: Epic-5-Stories.md
+    dependencies:
+      - E5-S02
+      - E5-S05
+
+  # Epic 1 — Grid
+  - id: E1-S01
+    title: Grid Domain Model
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E5-S05
+
+  - id: E1-S02
+    title: Grid Presentation
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E1-S01
+
+  - id: E1-S03
+    title: Route Construction
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E1-S02
+
+  - id: E1-S04
+    title: Route Editing
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E1-S03
+
+  - id: E1-S05
+    title: Route Validation
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E1-S03
+
+  - id: E1-S06
+    title: Planning Screen Foundation
+    epic: 1
+    workstream: grid
+    source: Epic-1-Stories.md
+    dependencies:
+      - E1-S04
+      - E1-S05
+
+  # Epic 2 — Planning
+  - id: E2-S01
+    title: Planning Analysis Engine
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E1-S06
+      - E5-S02
+
+  - id: E2-S02
+    title: Planning Summary Presentation
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E2-S03
+      - E2-S04
+      - E2-S05
+
+  - id: E2-S03
+    title: Delay Exposure Classification
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E2-S01
+
+  - id: E2-S04
+    title: Damage Risk Classification
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E2-S01
+
+  - id: E2-S05
+    title: Maximum Reward Estimation
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E2-S01
+
+  - id: E2-S06
+    title: Route Confirmation
+    epic: 2
+    workstream: planning
+    source: Epic-2-Stories.md
+    dependencies:
+      - E2-S02
+
+  # Epic 3 — Execution
+  - id: E3-S01
+    title: Execution Engine
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E2-S06
+
+  - id: E3-S02
+    title: Card Resolution Engine
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S01
+      - E5-S01
+
+  - id: E3-S03
+    title: Hazard Resolution
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S02
+      - E5-S03
+
+  - id: E3-S04
+    title: Execution Event History
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S03
+
+  - id: E3-S05
+    title: Execution Presentation
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S04
+
+  - id: E3-S06
+    title: Route Recap
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S04
+
+  - id: E3-S07
+    title: Execution Completion
+    epic: 3
+    workstream: execution
+    source: Epic-3-Stories.md
+    dependencies:
+      - E3-S06
+
+  # Epic 4 — Outcome
+  - id: E4-S01
+    title: Outcome Evaluation
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E3-S07
+
+  - id: E4-S02
+    title: Reward Settlement
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E4-S01
+      - E5-S02
+
+  - id: E4-S03
+    title: Outcome Breakdown
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E4-S02
+
+  - id: E4-S04
+    title: Results Screen
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E4-S03
+      - E3-S06
+
+  - id: E4-S05
+    title: Job Progression
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E4-S04
+      - E5-S06
+
+  - id: E4-S06
+    title: Outcome Integration
+    epic: 4
+    workstream: outcome
+    source: Epic-4-Stories.md
+    dependencies:
+      - E4-S05
+
+  # Epic 6 — Polish
+  - id: E6-S01
+    title: First-Time User Experience
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E4-S06
+
+  - id: E6-S02
+    title: Gameplay Polish
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E6-S01
+
+  - id: E6-S03
+    title: Accessibility
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E6-S02
+
+  - id: E6-S04
+    title: MVP Validation
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E6-S03
+      - E5-S06
+
+  - id: E6-S05
+    title: TestFlight Release
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E6-S04
+
+  - id: E6-S06
+    title: MVP Evaluation
+    epic: 6
+    workstream: polish
+    source: Epic-6-Stories.md
+    dependencies:
+      - E6-S05
