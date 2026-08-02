@@ -6,11 +6,11 @@
 
 ## Related Documents
 
-- [Product Requirements Document](../PRD.md)
-- [Gameplay Rules](../Gameplay-Rules.md)
-- [Decision Log](../Decision-Log.md)
-- [Roadmap](../Roadmap.md)
-- [Implementation Epics](../epics/)
+- [Product Requirements Document](../../PRD.md)
+- [Gameplay Rules](../../Gameplay-Rules.md)
+- [Decision Log](../../Decision-Log.md)
+- [Roadmap](../../Roadmap.md)
+- [Implementation Epics](../../epics/)
 
 ## Purpose
 
