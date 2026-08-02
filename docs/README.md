@@ -10,6 +10,7 @@ This folder contains the canonical product and delivery documentation for the De
 - [Roadmap](Roadmap.md) — delivery order, MVP gates, and post-MVP direction.
 - [Backlog](Backlog.md) — deferred ideas and follow-up work.
 - [Epics](epics/) — implementation-focused acceptance criteria.
+- [Story Catalogue](planning/story-catalogue/) — implementation stories, dependencies, and recommended delivery order. GitHub Issues are derived from this catalogue; they are not the source of truth.
 
 ## Document Precedence
 
@@ -19,5 +20,6 @@ When documents disagree, use this order:
 2. `PRD.md` for scope and player experience.
 3. `Decision-Log.md` for rationale and superseded choices.
 4. `Roadmap.md` and `epics/` for delivery planning.
+5. `planning/story-catalogue/` for implementation stories and sequencing.
 
 A contradiction should be corrected rather than preserved in downstream documents.
