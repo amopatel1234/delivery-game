@@ -22,23 +22,26 @@ The foundation layer provides the shared domain models, deterministic behaviour 
 ```text
 E5-S01 Card Rule Definitions
         │
-        ├─────────────┐
-        │             │
-        ▼             ▼
-E5-S02 Economy   E5-S04 Deck Recipe
-Configuration          │
-                       │
-                       ▼
-                E5-S05 Board Generator
-                       │
-                       ▼
-                E5-S06 Job Catalogue
-
-E5-S03 Seeded RNG
+        ▼
+E5-S04 Deck Recipe
         │
-        ├──────────────► E5-S05
-        └──────────────► E3-S03
+        ▼
+E5-S05 Board Generator ◄── E5-S03 Seeded RNG
+        │                         │
+        ▼                         └──────────────► E3-S03
+E5-S06 Job Catalogue ◄── E5-S02 Economy Configuration
 ```
+
+Dependencies:
+
+- E5-S01 → E5-S04
+- E5-S03 → E5-S05
+- E5-S04 → E5-S05
+- E5-S02 → E5-S06
+- E5-S05 → E5-S06
+- E5-S03 → E3-S03
+
+E5-S02 does not depend on E5-S01.
 
 ---
 
@@ -58,15 +61,25 @@ E1-S02 Grid Presentation
     ▼
 E1-S03 Route Construction
     │
-    ▼
-E1-S04 Route Editing
-    │
-    ▼
-E1-S05 Route Validation
-    │
-    ▼
-E1-S06 Planning Screen
+    ├──────────────┐
+    │              │
+    ▼              ▼
+E1-S04        E1-S05
+Route Editing Route Validation
+    │              │
+    └──────┐  ┌────┘
+           ▼  ▼
+      E1-S06 Planning Screen
 ```
+
+Dependencies:
+
+- E1-S01 → E1-S02 → E1-S03
+- E1-S03 → E1-S04
+- E1-S03 → E1-S05
+- E1-S04 + E1-S05 → E1-S06
+
+Route Editing and Route Validation may proceed in parallel after Route Construction.
 
 ---
 
@@ -75,28 +88,36 @@ E1-S06 Planning Screen
 Planning analyses a completed route without consuming randomness.
 
 ```text
-E1-S06
-    │
-    ▼
+E1-S06 + E5-S02
+        │
+        ▼
 E2-S01 Planning Analysis Engine
-    │
-    ├──────────────┐
-    │              │
-    ▼              ▼
-E2-S03        E2-S04
-Delay         Damage
-Exposure      Risk
-    │              │
-    └──────┐  ┌────┘
-           ▼  ▼
-      E2-S05 Maximum Reward
-             │
-             ▼
-      E2-S02 Planning Summary
-             │
-             ▼
-      E2-S06 Route Confirmation
+        │
+        ├──────────────┬──────────────┐
+        │              │              │
+        ▼              ▼              ▼
+   E2-S03         E2-S04         E2-S05
+   Delay          Damage         Maximum
+   Exposure       Risk           Reward
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+                E2-S02 Planning Summary
+                       │
+                       ▼
+                E2-S06 Route Confirmation
 ```
+
+Dependencies:
+
+- E1-S06 + E5-S02 → E2-S01
+- E2-S01 → E2-S03
+- E2-S01 → E2-S04
+- E2-S01 → E2-S05
+- E2-S03 + E2-S04 + E2-S05 → E2-S02
+- E2-S02 → E2-S06
+
+Delay Exposure, Damage Risk and Maximum Reward may proceed in parallel after the Planning Analysis Engine.
 
 ---
 
@@ -111,10 +132,10 @@ E2-S06
 E3-S01 Execution Engine
     │
     ▼
-E3-S02 Card Resolution
+E3-S02 Card Resolution ◄── E5-S01
     │
     ▼
-E3-S03 Hazard Resolution
+E3-S03 Hazard Resolution ◄── E5-S03
     │
     ▼
 E3-S04 Event History
@@ -122,13 +143,21 @@ E3-S04 Event History
     ├──────────────┐
     │              │
     ▼              ▼
-E3-S05       E3-S06
-Presentation Route Recap
-      │              │
-      └──────┐  ┌────┘
-             ▼  ▼
-        E3-S07 Execution Completion
+E3-S05        E3-S06
+Presentation  Route Recap
+                   │
+                   ▼
+              E3-S07 Execution Completion
 ```
+
+Dependencies:
+
+- E2-S06 → E3-S01 → E3-S02 → E3-S03 → E3-S04
+- E3-S04 → E3-S05
+- E3-S04 → E3-S06
+- E3-S06 → E3-S07
+
+The domain execution result does not depend on the presentation story.
 
 ---
 
@@ -143,20 +172,27 @@ E3-S07
 E4-S01 Outcome Evaluation
     │
     ▼
-E4-S02 Reward Settlement
+E4-S02 Reward Settlement ◄── E5-S02
     │
     ▼
 E4-S03 Outcome Breakdown
     │
     ▼
-E4-S04 Results Screen
+E4-S04 Results Screen ◄── E3-S06
     │
     ▼
-E4-S05 Job Progression
+E4-S05 Job Progression ◄── E5-S06
     │
     ▼
 E4-S06 Outcome Integration
 ```
+
+Dependencies:
+
+- E3-S07 → E4-S01 → E4-S02 → E4-S03 → E4-S04 → E4-S05 → E4-S06
+- E5-S02 → E4-S02
+- E3-S06 → E4-S04
+- E5-S06 → E4-S05
 
 ---
 
@@ -177,7 +213,7 @@ E6-S02 Gameplay Polish
 E6-S03 Accessibility
     │
     ▼
-E6-S04 MVP Validation
+E6-S04 MVP Validation ◄── E5-S06
     │
     ▼
 E6-S05 TestFlight Release
@@ -185,6 +221,12 @@ E6-S05 TestFlight Release
     ▼
 E6-S06 MVP Evaluation
 ```
+
+Dependencies:
+
+- E4-S06 → E6-S01 → E6-S02 → E6-S03
+- E6-S03 + E5-S06 → E6-S04
+- E6-S04 → E6-S05 → E6-S06
 
 ---
 
@@ -194,11 +236,12 @@ E6-S06 MVP Evaluation
 |--------|------------|
 | E1-S01 | E5-S05 |
 | E2-S01 | E1-S06, E5-S02 |
-| E3-S02 | E5-S01 |
-| E3-S03 | E5-S03 |
-| E4-S02 | E5-S02 |
-| E4-S05 | E5-S06 |
-| E6-S04 | E5-S06 |
+| E3-S02 | E3-S01, E5-S01 |
+| E3-S03 | E3-S02, E5-S03 |
+| E4-S02 | E4-S01, E5-S02 |
+| E4-S04 | E4-S03, E3-S06 |
+| E4-S05 | E4-S04, E5-S06 |
+| E6-S04 | E6-S03, E5-S06 |
 
 ---
 
@@ -206,11 +249,22 @@ E6-S06 MVP Evaluation
 
 ## Foundation
 
-The following stories may be implemented in parallel once the shared foundation is complete:
+The following stories may be implemented in parallel:
 
 - E5-S02 — Shared Economy Configuration
 - E5-S03 — Seeded Random Number Generator
-- E5-S04 — Deck Recipe
+- E5-S04 — Deck Recipe (after E5-S01)
+
+---
+
+## Grid
+
+After **E1-S03** completes:
+
+- E1-S04 — Route Editing
+- E1-S05 — Route Validation
+
+These stories are independent and may proceed concurrently.
 
 ---
 
@@ -220,6 +274,7 @@ After **E2-S01** completes:
 
 - E2-S03 — Delay Exposure Classification
 - E2-S04 — Damage Risk Classification
+- E2-S05 — Maximum Reward Estimation
 
 These stories are independent and may proceed concurrently.
 
@@ -232,7 +287,7 @@ After **E3-S04** completes:
 - E3-S05 — Execution Presentation
 - E3-S06 — Route Recap
 
-Both consume the immutable execution event history and do not modify gameplay state.
+Both consume the immutable execution event history. Presentation does not gate the domain execution result.
 
 ---
 

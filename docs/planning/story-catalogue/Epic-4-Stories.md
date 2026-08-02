@@ -10,7 +10,7 @@ This story applies the canonical Target Time and Deadline rules to produce eithe
 
 ### Deliverable
 
-Outcome Evaluation Service
+Outcome Evaluation Service.
 
 ### Scope
 
@@ -36,6 +36,7 @@ Outcome Evaluation Service
 - Runs finishing after Target Time but before Deadline are completed.
 - Runs finishing at or after Deadline fail.
 - Outcome evaluation is deterministic.
+- Includes every timing-boundary unit test.
 
 ### References
 
@@ -50,7 +51,7 @@ Calculate the final payout using the shared economy configuration and execution 
 
 ### Deliverable
 
-Reward Settlement Service
+Reward Settlement Service.
 
 ### Scope
 
@@ -77,6 +78,8 @@ Reward Settlement Service
 - Failed runs always return zero reward.
 - Final reward is never negative.
 - Settlement consumes only immutable execution data.
+- Consumes no randomness.
+- Includes timing, damage and clamping unit tests.
 
 ### References
 
@@ -91,7 +94,7 @@ Produce a presentation-neutral explanation of how the final reward was calculate
 
 ### Deliverable
 
-Outcome Breakdown Model
+Outcome Breakdown Model.
 
 ### Scope
 
@@ -116,6 +119,7 @@ Outcome Breakdown Model
 - Zero-value components remain available to consumers.
 - Breakdown matches settlement exactly.
 - Output is immutable.
+- Includes mapping and consistency unit tests.
 
 ### References
 
@@ -129,7 +133,7 @@ Present the completed outcome to the player.
 
 ### Deliverable
 
-Results Screen
+Results Screen.
 
 ### Scope
 
@@ -158,6 +162,7 @@ Results Screen
 - Timing information is visible.
 - Breakdown is readable.
 - Route recap is accessible.
+- Includes completed and failed UI tests.
 
 ### References
 
@@ -171,7 +176,7 @@ Manage progression through the five authored MVP jobs.
 
 ### Deliverable
 
-Job Progression Coordinator
+Job Progression Coordinator.
 
 ### Scope
 
@@ -196,6 +201,7 @@ Job Progression Coordinator
 - Completing Job 5 unlocks replay.
 - Replaying resets run state.
 - Random jobs remain unavailable.
+- Includes progression and reset unit tests.
 
 ### References
 
@@ -210,7 +216,7 @@ Integrate execution, settlement and progression into one completed gameplay loop
 
 ### Deliverable
 
-Complete Outcome Flow
+Complete Outcome Flow.
 
 ### Scope
 
@@ -235,6 +241,7 @@ Complete Outcome Flow
 - Outcome is shown exactly once.
 - Progression follows the canonical MVP flow.
 - All state transitions are deterministic.
+- Includes an end-to-end functional MVP UI test.
 
 ### References
 

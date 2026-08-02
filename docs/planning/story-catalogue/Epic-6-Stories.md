@@ -8,7 +8,7 @@ Guide a first-time player through the core gameplay loop with minimal friction.
 
 ### Deliverable
 
-Onboarding Flow
+Onboarding Flow.
 
 ### Scope
 
@@ -34,11 +34,12 @@ Onboarding Flow
 - Onboarding may be skipped.
 - Completion state persists.
 - Development builds can reset onboarding.
+- Includes clean-state and completed-state UI tests.
 
 ### References
 
-- [Epic 6](../../epics/Epic-6-Polish-and-TestFlight.md)
 - [Gameplay Rules](../../Gameplay-Rules.md)
+- [Epic 6](../../epics/Epic-6-Polish-and-TestFlight.md)
 
 ## E6-S02 — Gameplay Polish
 
@@ -48,7 +49,7 @@ Improve the visual quality and responsiveness of the gameplay experience without
 
 ### Deliverable
 
-Gameplay Presentation
+Gameplay Presentation.
 
 ### Scope
 
@@ -70,9 +71,10 @@ Gameplay Presentation
 ### Acceptance Criteria
 
 - Gameplay remains visually consistent.
-- States are clearly distinguishable.
+- States are clearly distinguishable without relying only on colour.
 - Layout remains stable.
 - Gameplay behaviour is unchanged.
+- Feedback remains independent from domain results.
 
 ### References
 
@@ -86,7 +88,7 @@ Ensure the MVP is fully usable with the supported iOS accessibility features.
 
 ### Deliverable
 
-Accessibility Support
+Accessibility Support.
 
 ### Scope
 
@@ -110,6 +112,7 @@ Accessibility Support
 - Dynamic Type remains usable.
 - Reduce Motion is respected.
 - VoiceOver communicates gameplay correctly.
+- Includes relevant accessibility UI tests.
 
 ### References
 
@@ -123,7 +126,7 @@ Validate that the five seeded jobs achieve the intended design goals before exte
 
 ### Deliverable
 
-Internal Validation
+Internal Validation.
 
 ### Scope
 
@@ -140,6 +143,7 @@ Internal Validation
 ### Dependencies
 
 - E6-S03.
+- E5-S06.
 
 ### Acceptance Criteria
 
@@ -147,6 +151,7 @@ Internal Validation
 - No dominant unintended strategy exists.
 - Accepted layouts remain deterministic.
 - Regression tests pass.
+- Records accepted seeds, Target Times and Deadlines.
 
 ### References
 
@@ -161,7 +166,7 @@ Produce and distribute a stable external TestFlight build.
 
 ### Deliverable
 
-TestFlight Build
+TestFlight Build.
 
 ### Scope
 
@@ -186,6 +191,7 @@ TestFlight Build
 - Internal testing passes.
 - External TestFlight is available.
 - Release notes are prepared.
+- Tester instructions and known limitations are documented.
 
 ### References
 
@@ -199,7 +205,7 @@ Collect structured feedback and determine whether the MVP has successfully valid
 
 ### Deliverable
 
-MVP Validation Report
+MVP Validation Report.
 
 ### Scope
 

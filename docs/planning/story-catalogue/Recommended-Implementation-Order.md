@@ -53,6 +53,12 @@ Deliver the first player-facing vertical slice: viewing a board and building a v
 5. E1-S05 — Route Validation
 6. E1-S06 — Planning Screen Foundation
 
+## Parallel Work
+
+After E1-S03 is complete:
+
+- E1-S04 and E1-S05 may be implemented in parallel.
+
 ## Completion Checkpoint
 
 At the end of this workstream, the player can:
@@ -87,8 +93,7 @@ Turn route construction into a complete planning experience.
 
 After E2-S01 is complete:
 
-- E2-S03 and E2-S04 may be implemented in parallel.
-- E2-S05 may also proceed once the analysis result and economy interface are stable.
+- E2-S03, E2-S04 and E2-S05 may be implemented in parallel.
 
 ## Completion Checkpoint
 
@@ -127,6 +132,8 @@ Resolve the confirmed route and make the consequences of the player's plan visib
 After E3-S04 is complete:
 
 - E3-S05 and E3-S06 may be implemented in parallel.
+
+E3-S07 depends on E3-S06 only. Presentation does not gate the domain execution result.
 
 ## Completion Checkpoint
 

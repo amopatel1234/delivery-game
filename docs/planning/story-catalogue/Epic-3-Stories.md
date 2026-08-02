@@ -10,7 +10,7 @@ The execution engine owns the lifecycle of a delivery run and coordinates the re
 
 ### Deliverable
 
-Execution Engine
+Execution Engine.
 
 ### Scope
 
@@ -35,7 +35,9 @@ Execution Engine
 - Executes one confirmed route.
 - Never mutates the confirmed route.
 - Resolves cards sequentially.
+- Prevents concurrent or duplicate execution.
 - Produces deterministic execution state.
+- Includes lifecycle unit tests.
 
 ### References
 
@@ -49,7 +51,7 @@ Resolve the gameplay behaviour of every card entered during execution.
 
 ### Deliverable
 
-Card Resolution Service
+Card Resolution Service.
 
 ### Scope
 
@@ -74,8 +76,10 @@ Card Resolution Service
 
 - Every card resolves according to Gameplay Rules.
 - Fast Lane consumes zero travel time.
+- Never damages from non-Heavy-Traffic cards.
 - Heavy Traffic delegates probability checks.
 - Resolution order matches the confirmed route.
+- Includes unit tests for every card type.
 
 ### References
 
@@ -90,7 +94,7 @@ Resolve probabilistic gameplay events using deterministic random-number generati
 
 ### Deliverable
 
-Hazard Resolution Service
+Hazard Resolution Service.
 
 ### Scope
 
@@ -113,8 +117,10 @@ Hazard Resolution Service
 
 - Uses injected RNG.
 - Damage rolls occur only after successful delay rolls.
+- Does not consume unnecessary random values.
 - Produces deterministic results for identical seeds.
-- Never consumes unnecessary random values.
+- Uses inclusive 1–100 thresholds.
+- Includes threshold and consumption unit tests.
 
 ### References
 
@@ -129,7 +135,7 @@ Record every execution event for replay, analysis and settlement.
 
 ### Deliverable
 
-Execution Event Log
+Execution Event Log.
 
 ### Scope
 
@@ -152,8 +158,10 @@ Execution Event Log
 
 - One event recorded per resolved card.
 - Events preserve execution order.
+- Records only consumed rolls.
 - Event history is immutable after completion.
-- Settlement consumes only the event history.
+- Settlement can consume the event history alone.
+- Includes event-integrity unit tests.
 
 ### References
 
@@ -168,7 +176,7 @@ Present execution progress to the player without influencing gameplay behaviour.
 
 ### Deliverable
 
-Execution Presentation Layer
+Execution Presentation Layer.
 
 ### Scope
 
@@ -194,6 +202,7 @@ Execution Presentation Layer
 - Time updates after each resolution.
 - Damage count updates immediately.
 - Presentation never changes execution results.
+- Includes progression and control-locking UI tests.
 
 ### References
 
@@ -207,7 +216,7 @@ Produce a complete summary of the executed journey.
 
 ### Deliverable
 
-Execution Recap Model
+Execution Recap Model.
 
 ### Scope
 
@@ -232,6 +241,7 @@ Execution Recap Model
 - Recap matches recorded event history.
 - Totals match execution state.
 - Output is presentation-independent.
+- Includes model consistency unit tests.
 
 ### References
 
@@ -246,7 +256,7 @@ Complete the execution phase and hand control to the outcome system.
 
 ### Deliverable
 
-Execution Result
+Execution Result.
 
 ### Scope
 
@@ -267,10 +277,12 @@ Execution Result
 
 ### Acceptance Criteria
 
-- Produces immutable execution result.
+- Produces an immutable execution result.
 - Contains everything required by Epic 4.
 - Execution cannot continue after completion.
 - Transition occurs exactly once.
+- Does not depend on presentation.
+- Includes completion and duplicate-transition unit tests.
 
 ### References
 
