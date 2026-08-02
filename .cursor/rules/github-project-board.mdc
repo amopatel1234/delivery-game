@@ -1,0 +1,38 @@
+---
+description: Keep Delivery Game MVP GitHub Project board in sync with story lifecycle
+alwaysApply: true
+---
+
+# GitHub Project board sync
+
+Local docs (Story Catalogue, Decision Log, etc.) are the source of truth for scope.
+Issues/PRs are the source of truth for derived status (`scripts/story_status.py`).
+The **Delivery Game MVP** project board is a human progress mirror — update it as you work; never treat it as authoritative.
+
+**Project:** owner `amopatel1234`, number `2`  
+https://github.com/users/amopatel1234/projects/2
+
+## When to update Status
+
+| Moment | Board Status | Also |
+|---|---|---|
+| Start a catalogue story | **In Progress** | Assign the issue to yourself if possible |
+| Open the implementation PR | **In Review** | Ensure PR links the issue; set Implementation PR if useful |
+| PR merges and issue closes | **Done** | Confirm issue closed |
+| Dependencies unfinished / blocked decision | **Blocked** | Apply `status: blocked` on the issue when appropriate |
+
+Do this in the same turn as starting work or opening/merging the PR — do not wait to be asked.
+
+## How
+
+1. Resolve the project item for the story (`[E#-S##]` title) via `gh project item-list 2 --owner amopatel1234 --limit 100 --format json`.
+2. Resolve Status field + option IDs via `gh project field-list 2 --owner amopatel1234 --format json`.
+3. Set Status with `gh project item-edit --id <item-id> --project-id <project-id> --field-id <status-field-id> --single-select-option-id <option-id>`.
+
+If `gh` lacks `project` scopes, ask the user to run `gh auth refresh -s project,read:project` once.
+
+## Do not
+
+- Redefine acceptance criteria on the issue or board
+- Skip board updates because derived status already changed
+- Move a story to **Done** before the implementation PR is merged and the issue is closed

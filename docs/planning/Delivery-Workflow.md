@@ -1,6 +1,6 @@
 # Delivery Workflow
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Status:** Active  
 **Owner:** Delivery
 
@@ -36,7 +36,22 @@ Dependency graph: `docs/planning/story-catalogue/Cross-Epic-Dependencies.md`
 | **Blocked** | One or more dependencies are not Done, or a blocker label/decision applies. |
 | **Done** | Implementation PR is merged into `main` and the linked issue is closed. |
 
-Status for agents is derived primarily from Issues, PRs and `stories.yml` dependencies via `scripts/story_status.py`. GitHub Project board fields are optional mirrors and may lag; do not treat the board as the only source of completion.
+Status for agents is derived primarily from Issues, PRs and `stories.yml` dependencies via `scripts/story_status.py`. The GitHub Project board is a human progress mirror — keep it updated, but do not treat it as the source of completion.
+
+### Project board sync (agents)
+
+Project: **Delivery Game MVP** — https://github.com/users/amopatel1234/projects/2 (`amopatel1234`, project number `2`).
+
+When an agent picks up catalogue work, update the board in the same turn:
+
+| Moment | Board Status |
+|---|---|
+| Start implementing a story | **In Progress** (assign the issue when possible) |
+| Open the implementation PR | **In Review** |
+| PR merges and linked issue closes | **Done** |
+| Dependencies or a decision block the story | **Blocked** |
+
+Local docs remain the scope source of truth. If the board disagrees with Issues/PRs/`story_status.py`, prefer Issues/PRs/dependencies and correct the board.
 
 ---
 
@@ -120,7 +135,7 @@ git config core.hooksPath hooks
 | GitHub Issues | Track execution status, assignees and blockers. |
 | Pull requests | Provide implementation evidence, AC checklist and validation commands. |
 | CI | Validates catalogue integrity, conventional PR titles, story traceability, iOS build/tests, and TestFlight upload on merge. |
-| Project board | Reflects live status for humans; may mirror derived status. |
+| Project board | Human progress mirror; agents update Status on start / PR / merge. |
 
 ---
 
@@ -215,7 +230,7 @@ python3 scripts/story_status.py --json
 
 `scripts/story_status.py` uses the GitHub CLI (`gh`) plus `stories.yml`. It classifies status from issues, pull requests and dependencies.
 
-It does **not** query GitHub Project custom fields. If the Project board disagrees with derived status, prefer Issues/PRs/dependencies and update the board.
+It does **not** query GitHub Project custom fields. Agents still update the Project board Status at lifecycle moments (see [Project board sync](#project-board-sync-agents)). If the board disagrees with derived status, prefer Issues/PRs/dependencies and correct the board.
 
 ---
 
