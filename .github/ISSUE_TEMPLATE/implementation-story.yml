@@ -1,0 +1,80 @@
+name: Implementation Story
+description: >
+  Track delivery of one Story Catalogue item. The Markdown Story Catalogue is
+  the source of truth for scope and acceptance criteria — do not redefine
+  gameplay behaviour in this issue.
+title: "[E?-S??] Story title"
+labels: ["type: story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Canonical source of truth
+
+        The Story Catalogue under `docs/planning/story-catalogue/` is canonical
+        for scope and acceptance criteria.
+
+        - Do **not** redefine gameplay behaviour in this issue.
+        - Do **not** paste the full story body or acceptance criteria here.
+        - Link the canonical story heading instead.
+
+        **Completion requires:** a merged implementation PR, passing checks,
+        and satisfied acceptance criteria from the catalogue.
+
+  - type: input
+    id: story_id
+    attributes:
+      label: Story ID
+      description: Stable Story Catalogue identifier (for example E5-S01).
+      placeholder: E5-S01
+    validations:
+      required: true
+
+  - type: input
+    id: story_title
+    attributes:
+      label: Story title
+      description: Title exactly as published in the Story Catalogue.
+      placeholder: Card Rule Definitions
+    validations:
+      required: true
+
+  - type: input
+    id: canonical_source
+    attributes:
+      label: Canonical source path
+      description: Path (and optional heading anchor) to the catalogue story.
+      placeholder: docs/planning/story-catalogue/Epic-5-Stories.md#e5-s01--card-rule-definitions
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Story IDs that must be Done before this work is Ready.
+      placeholder: |
+        - None
+        or
+        - E5-S01
+        - E5-S03
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_notes
+    attributes:
+      label: Implementation notes
+      description: Delivery notes only — not a second copy of the story scope.
+      placeholder: To be added during delivery.
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks_or_blockers
+    attributes:
+      label: Risks or blockers
+      description: Known risks, open product decisions, or blockers.
+      placeholder: None known.
+    validations:
+      required: false

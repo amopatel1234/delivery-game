@@ -7,6 +7,7 @@ It decomposes the approved implementation epics into implementation-sized storie
 ## Contents
 
 - [Overview](Overview.md) — purpose, principles, story template and lifecycle
+- [stories.yml](stories.yml) — machine-readable registry (IDs, titles, workstreams, dependencies)
 - [Epic 5 – Deck and Seeded Job Generation](Epic-5-Stories.md)
 - [Epic 1 – The Grid](Epic-1-Stories.md)
 - [Epic 2 – Route Planning](Epic-2-Stories.md)
@@ -15,6 +16,8 @@ It decomposes the approved implementation epics into implementation-sized storie
 - [Epic 6 – Polish, Validation and TestFlight](Epic-6-Stories.md)
 - [Cross-Epic Dependencies](Cross-Epic-Dependencies.md)
 - [Recommended Implementation Order](Recommended-Implementation-Order.md)
+
+See also [Delivery Workflow](../Delivery-Workflow.md) for Issues, PRs and CI traceability.
 
 ## Story Count
 

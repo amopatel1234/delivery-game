@@ -1,0 +1,3 @@
+# Python dependencies for delivery-workflow validation scripts.
+# Used by GitHub Actions and local validation.
+PyYAML>=6.0.1

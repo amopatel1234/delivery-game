@@ -1,0 +1,52 @@
+name: PR traceability
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  traceability:
+    name: Validate PR story traceability
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Run PR traceability unit tests
+        run: python -m unittest tests.test_validate_pr_traceability -v
+
+      # Story implementation PRs must use story/<id>-* branches.
+      # Planning/meta branches (for example planning/*) are skipped intentionally.
+      - name: Validate this pull request
+        if: startsWith(github.head_ref, 'story/')
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python scripts/validate_pr_traceability.py \
+            --title "$PR_TITLE" \
+            --branch "$PR_BRANCH" \
+            --body "$PR_BODY"
+
+      - name: Skip non-story branches
+        if: ${{ !startsWith(github.head_ref, 'story/') }}
+        run: |
+          echo "Skipping PR story-traceability enforcement for branch '${{ github.head_ref }}'."
+          echo "Implementation branches must start with story/<lowercase-story-id>-"

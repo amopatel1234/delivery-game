@@ -42,6 +42,14 @@ playground.xcworkspace
 # Add this line if you want to avoid checking in source code from the Xcode workspace
 # *.xcworkspace
 
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
 # Carthage
 #
 # Add this line if you want to avoid checking in source code from Carthage dependencies.
