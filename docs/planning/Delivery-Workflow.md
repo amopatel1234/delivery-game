@@ -145,6 +145,8 @@ Set these Actions secrets (same pattern as `what-to-make` / `Orbital-Drift`):
 | `DISTRIBUTION_PASSWORD` | Password for that `.p12` |
 | `KEY_VALUE` | App Store Connect API `.p8` key contents (mapped to Fastlane `APP_STORE_CONNECT_API_KEY_KEY`) |
 
+Both Fastlane workflows set a UTF-8 locale (`LC_ALL=en_US.UTF-8`, `LANG=en_US.UTF-8`) as required by Fastlane setup docs.
+
 `merged.yml` also passes Fastlane’s official ASC env vars:
 
 | Env var | Value |

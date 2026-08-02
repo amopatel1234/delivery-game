@@ -18,6 +18,11 @@ jobs:
   build:
     name: Build app and deploy to TestFlight
     runs-on: macos-26
+    # Fastlane requires a UTF-8 locale:
+    # https://docs.fastlane.tools/getting-started/ios/setup/#set-up-environment-variables
+    env:
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
 
     steps:
       - name: Add path globally

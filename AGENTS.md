@@ -105,6 +105,6 @@ Repository secrets expected by `merged.yml`:
 - `DISTRIBUTION_PASSWORD` — password for that `.p12`
 - `KEY_VALUE` — App Store Connect API `.p8` key contents
 
-Workflow also sets Fastlane’s official ASC env vars (`APP_STORE_CONNECT_API_KEY_*`) and `APP_STORE_CONNECT_API_KEY_IN_HOUSE=false`.
+Fastlane CI jobs set `LC_ALL=en_US.UTF-8` and `LANG=en_US.UTF-8` (required by Fastlane). Deploy also sets official ASC env vars (`APP_STORE_CONNECT_API_KEY_*`) with `IN_HOUSE=false`.
 
 Provisioning profile name: **Couriers Gambit App Store Profile**.
