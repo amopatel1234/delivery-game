@@ -7,7 +7,7 @@ platform :ios do
   PROJECT_NAME = "delivery-game.xcodeproj"
   APP_IDENTIFIER = "amishpatel.delivery-game"
   APP_TARGET = "delivery-game"
-  PROVISIONING_PROFILE_NAME = "Delivery Game App Store"
+  PROVISIONING_PROFILE_NAME = "Couriers Gambit App Store Profile"
   PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
 
   desc "Run unit tests on the pinned iPhone 17 Pro simulator"
