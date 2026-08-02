@@ -143,11 +143,28 @@ Set these Actions secrets (same pattern as `what-to-make` / `Orbital-Drift`):
 |---|---|
 | `DISTRIBUTION_CERTIFICATE` | Base64-encoded Apple Distribution `.p12` |
 | `DISTRIBUTION_PASSWORD` | Password for that `.p12` |
-| `KEY_VALUE` | App Store Connect API key contents |
+| `KEY_VALUE` | App Store Connect API `.p8` key contents (mapped to Fastlane `APP_STORE_CONNECT_API_KEY_KEY`) |
 
-`ISSUER_ID` and `KEY_ID` are set in `merged.yml`. The App Store provisioning profile name in Fastlane is `Couriers Gambit App Store Profile` for bundle ID `amishpatel.delivery-game`.
+Both Fastlane workflows set a UTF-8 locale (`LC_ALL=en_US.UTF-8`, `LANG=en_US.UTF-8`) as required by Fastlane setup docs.
+
+`merged.yml` also passes Fastlane’s official ASC env vars:
+
+| Env var | Value |
+|---|---|
+| `APP_STORE_CONNECT_API_KEY_KEY_ID` | API Key ID |
+| `APP_STORE_CONNECT_API_KEY_ISSUER_ID` | Issuer ID |
+| `APP_STORE_CONNECT_API_KEY_KEY` | from `KEY_VALUE` secret |
+| `APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64` | `false` |
+| `APP_STORE_CONNECT_API_KEY_IN_HOUSE` | `false` (App Store team; needed for sigh clarity) |
+
+Provisioning profile name: `Couriers Gambit App Store Profile`  
+Bundle ID: `com.amishpatel.couriesgambit.game`
 
 Update `fastlane/testing_notes.txt` before merges that should ship a meaningful What to Test note.
+
+### Testing policy
+
+CI and story validation rely on **unit tests only**. UI test targets are not used.
 
 ---
 
