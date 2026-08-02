@@ -11,6 +11,8 @@ platform :ios do
   UNIT_TEST_TARGET = "delivery-gameTests"
   PROVISIONING_PROFILE_NAME = "Couriers Gambit App Store Profile"
   TEAM_ID = "24CTGGM78R"
+  # App Store Connect → TestFlight → Internal Testing group name
+  TESTFLIGHT_INTERNAL_GROUP = "Internal"
   PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
 
   desc "Run unit tests only (no UI tests) on the pinned iPhone 17 Pro simulator"
@@ -136,10 +138,18 @@ platform :ios do
       UI.message("TestFlight What to Test notes:\n#{testing_notes}")
 
       upload_to_testflight(
-        skip_submission: true,
         app_platform: "ios",
         changelog: testing_notes,
-        team_id: TEAM_ID
+        team_id: TEAM_ID,
+        # Matches INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO in the app target.
+        uses_non_exempt_encryption: false,
+        # Distribute to the internal TestFlight group after processing.
+        # Keep distribute_external false — Internal is not an external group.
+        skip_submission: false,
+        skip_waiting_for_build_processing: false,
+        distribute_external: false,
+        submit_beta_review: false,
+        groups: [TESTFLIGHT_INTERNAL_GROUP]
       )
     ensure
       delete_keychain(name: keychain_name)
