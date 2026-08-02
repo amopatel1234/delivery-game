@@ -141,6 +141,8 @@ platform :ios do
         app_platform: "ios",
         changelog: testing_notes,
         team_id: TEAM_ID,
+        # Matches INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO in the app target.
+        uses_non_exempt_encryption: false,
         # Distribute to the internal TestFlight group after processing.
         # Keep distribute_external false — Internal is not an external group.
         skip_submission: false,
