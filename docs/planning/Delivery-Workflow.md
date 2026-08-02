@@ -145,7 +145,7 @@ Set these Actions secrets (same pattern as `what-to-make` / `Orbital-Drift`):
 | `DISTRIBUTION_PASSWORD` | Password for that `.p12` |
 | `KEY_VALUE` | App Store Connect API key contents |
 
-`ISSUER_ID` and `KEY_ID` are set in `merged.yml`. The App Store provisioning profile name in Fastlane is `Couriers Gambit App Store Profile` for bundle ID `amishpatel.delivery-game`.
+`ISSUER_ID` and `KEY_ID` are set in `merged.yml`. The App Store provisioning profile name in Fastlane is `Couriers Gambit App Store Profile` for bundle ID `com.amishpatel.couriesgambit.game`.
 
 Update `fastlane/testing_notes.txt` before merges that should ship a meaningful What to Test note.
 

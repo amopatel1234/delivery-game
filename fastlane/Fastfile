@@ -5,7 +5,7 @@ default_platform(:ios)
 
 platform :ios do
   PROJECT_NAME = "delivery-game.xcodeproj"
-  APP_IDENTIFIER = "amishpatel.delivery-game"
+  APP_IDENTIFIER = "com.amishpatel.couriesgambit.game"
   APP_TARGET = "delivery-game"
   PROVISIONING_PROFILE_NAME = "Couriers Gambit App Store Profile"
   PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
