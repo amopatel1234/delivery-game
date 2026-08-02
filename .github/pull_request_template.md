@@ -18,7 +18,6 @@ Copy the canonical acceptance criteria here and mark each item:
 
 - [ ] Build succeeds
 - [ ] Unit tests pass
-- [ ] UI tests pass or are not applicable
 - [ ] Story-catalogue validation passes
 
 Commands run:

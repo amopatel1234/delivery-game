@@ -20,7 +20,9 @@ bundle install
 - **Commits and PR titles** use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 - Story PRs: `feat(E5-S01): short description` on branch `story/e5-s01-…`.
 - Prefer squash merges into `main`.
-- See [`docs/planning/Delivery-Workflow.md`](docs/planning/Delivery-Workflow.md) for CI, TestFlight secrets, and GitHub branch rules.
+- **Unit tests only** — no UI test target.
+- Agent map: [`AGENTS.md`](AGENTS.md)
+- See [`docs/planning/Delivery-Workflow.md`](docs/planning/Delivery-Workflow.md) for CI and TestFlight secrets.
 
 ## TestFlight
 

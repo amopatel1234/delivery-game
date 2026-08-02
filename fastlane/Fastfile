@@ -1,5 +1,6 @@
-# Fastlane configuration for Delivery Game.
+# Fastlane configuration for Couriers Gambit (delivery-game).
 # Docs: https://docs.fastlane.tools
+# ASC API: https://docs.fastlane.tools/app-store-connect-api/
 
 default_platform(:ios)
 
@@ -7,10 +8,12 @@ platform :ios do
   PROJECT_NAME = "delivery-game.xcodeproj"
   APP_IDENTIFIER = "com.amishpatel.couriesgambit.game"
   APP_TARGET = "delivery-game"
+  UNIT_TEST_TARGET = "delivery-gameTests"
   PROVISIONING_PROFILE_NAME = "Couriers Gambit App Store Profile"
+  TEAM_ID = "24CTGGM78R"
   PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
 
-  desc "Run unit tests on the pinned iPhone 17 Pro simulator"
+  desc "Run unit tests only (no UI tests) on the pinned iPhone 17 Pro simulator"
   lane :runUnitTests do
     required_vars = ["PROJECT_FILENAME", "SCHEME"]
     required_vars.each do |var|
@@ -21,6 +24,7 @@ platform :ios do
       project: ENV["PROJECT_FILENAME"],
       scheme: ENV["SCHEME"],
       destination: PINNED_TEST_DESTINATION,
+      only_testing: [UNIT_TEST_TARGET],
       ensure_devices_found: true,
       result_bundle: true,
     )
@@ -35,10 +39,30 @@ platform :ios do
 
     UI.message("App Store marketing version (from Xcode): #{marketing_version}")
 
+    # Official App Store Connect API env vars (preferred):
+    #   APP_STORE_CONNECT_API_KEY_KEY_ID
+    #   APP_STORE_CONNECT_API_KEY_ISSUER_ID
+    #   APP_STORE_CONNECT_API_KEY_KEY
+    #   APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64 (optional)
+    #   APP_STORE_CONNECT_API_KEY_IN_HOUSE (optional; required for sigh/match clarity)
+    # Legacy aliases also accepted: KEY_ID, ISSUER_ID, KEY_VALUE
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"] || ENV["KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"] || ENV["ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_API_KEY_KEY"] || ENV["KEY_VALUE"]
+    UI.user_error!("Missing App Store Connect API key id") if key_id.to_s.empty?
+    UI.user_error!("Missing App Store Connect API issuer id") if issuer_id.to_s.empty?
+    UI.user_error!("Missing App Store Connect API key content") if key_content.to_s.empty?
+
+    is_base64 = ENV.fetch("APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64", "false") == "true"
+    in_house = ENV.fetch("APP_STORE_CONNECT_API_KEY_IN_HOUSE", "false") == "true"
+
     app_store_connect_api_key(
-      key_id: ENV["KEY_ID"],
-      issuer_id: ENV["ISSUER_ID"],
-      key_content: ENV["KEY_VALUE"]
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+      is_key_content_base64: is_base64,
+      duration: 1200,
+      in_house: in_house # false for App Store teams; needed for sigh clarity
     )
 
     password = SecureRandom.hex
@@ -47,7 +71,9 @@ platform :ios do
     create_keychain(
       name: keychain_name,
       password: password,
-      unlock: true
+      unlock: true,
+      timeout: 0,
+      lock_when_sleeps: true
     )
 
     begin
@@ -61,7 +87,8 @@ platform :ios do
       begin
         latest_build = latest_testflight_build_number(
           app_identifier: APP_IDENTIFIER,
-          version: marketing_version
+          version: marketing_version,
+          team_id: TEAM_ID
         )
         build_number = latest_build + 1
       rescue => e
@@ -79,13 +106,15 @@ platform :ios do
       get_provisioning_profile(
         readonly: true,
         app_identifier: APP_IDENTIFIER,
-        provisioning_name: PROVISIONING_PROFILE_NAME
+        provisioning_name: PROVISIONING_PROFILE_NAME,
+        team_id: TEAM_ID
       )
 
       update_code_signing_settings(
         use_automatic_signing: false,
         code_sign_identity: "Apple Distribution",
         profile_name: PROVISIONING_PROFILE_NAME,
+        team_id: TEAM_ID,
         targets: APP_TARGET
       )
 
@@ -94,7 +123,8 @@ platform :ios do
         scheme: APP_TARGET,
         export_method: "app-store",
         destination: "generic/platform=iOS",
-        sdk: "iphoneos"
+        sdk: "iphoneos",
+        export_team_id: TEAM_ID
       )
 
       UI.success("Built IPA at: #{ipa_path}")
@@ -108,7 +138,8 @@ platform :ios do
       upload_to_testflight(
         skip_submission: true,
         app_platform: "ios",
-        changelog: testing_notes
+        changelog: testing_notes,
+        team_id: TEAM_ID
       )
     ensure
       delete_keychain(name: keychain_name)
