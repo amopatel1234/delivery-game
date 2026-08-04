@@ -110,4 +110,4 @@ Fastlane CI jobs set `LC_ALL=en_US.UTF-8` and `LANG=en_US.UTF-8` (required by Fa
 
 Provisioning profile name: **Couriers Gambit App Store Profile**.
 
-TestFlight internal group: **`Internal`** (Fastlane `deploy` assigns builds after processing). Prefer also enabling **Automatic distribution** on that group in App Store Connect.
+TestFlight internal group: **`Internal`**. Enable **Automatic distribution** on that group in App Store Connect — Fastlane uploads only and does not assign groups (ASC rejects API assignment to Internal).
