@@ -1,0 +1,64 @@
+//
+//  CardTypePresentation.swift
+//  delivery-game
+//
+
+import Foundation
+
+/// Presentation metadata for a card type.
+/// Kept free of SwiftUI so views and tests can share the same mapping.
+nonisolated struct CardTypePresentation: Equatable, Sendable {
+    let symbolName: String
+    let title: String
+    let accessibilityLabel: String
+
+    static func forType(_ type: CardType) -> CardTypePresentation {
+        switch type {
+        case .clearRoad:
+            CardTypePresentation(
+                symbolName: "road.lanes",
+                title: "Clear Road",
+                accessibilityLabel: "Clear Road"
+            )
+        case .lightTraffic:
+            CardTypePresentation(
+                symbolName: "car.fill",
+                title: "Light Traffic",
+                accessibilityLabel: "Light Traffic"
+            )
+        case .heavyTraffic:
+            CardTypePresentation(
+                symbolName: "truck.box.fill",
+                title: "Heavy Traffic",
+                accessibilityLabel: "Heavy Traffic"
+            )
+        case .roadworks:
+            CardTypePresentation(
+                symbolName: "cone.fill",
+                title: "Roadworks",
+                accessibilityLabel: "Roadworks"
+            )
+        case .fastLane:
+            CardTypePresentation(
+                symbolName: "bolt.fill",
+                title: "Fast Lane",
+                accessibilityLabel: "Fast Lane"
+            )
+        }
+    }
+}
+
+/// Stable accessibility identifiers for grid presentation.
+nonisolated enum GridAccessibilityID {
+    static let board = "grid-board"
+    static let mainMenu = "main-menu"
+    static let startGameButton = "main-menu-start-game"
+
+    static func cell(row: Int, column: Int) -> String {
+        "grid-cell-r\(row)-c\(column)"
+    }
+
+    static func cell(_ coordinate: GridCoordinate) -> String {
+        cell(row: coordinate.row, column: coordinate.column)
+    }
+}
