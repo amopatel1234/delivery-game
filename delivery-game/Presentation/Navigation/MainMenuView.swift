@@ -16,7 +16,7 @@ struct MainMenuView: View {
                     .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(GridPalette.accent)
 
-                Text("Courier's Gambit")
+                Text("Couriers Gambit")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
                     .foregroundStyle(GridPalette.ink)
 
