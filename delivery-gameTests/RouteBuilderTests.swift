@@ -19,10 +19,13 @@ struct RouteBuilderTests {
         var builder = RouteBuilder()
 
         let right = GridCoordinate(row: 0, column: 1)
-        let down = GridCoordinate(row: 1, column: 0)
+        let downFromRight = GridCoordinate(row: 1, column: 1)
 
         #expect(builder.select(right) == .accepted(Route(coordinates: [.depot, right])))
-        #expect(builder.select(down) == .accepted(Route(coordinates: [.depot, right, down])))
+        #expect(
+            builder.select(downFromRight)
+                == .accepted(Route(coordinates: [.depot, right, downFromRight]))
+        )
     }
 
     @Test func rejectsDiagonalMoves() {
