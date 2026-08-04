@@ -6,9 +6,12 @@
 import SwiftUI
 
 /// Renders a full delivery grid from a `DeliveryGrid` value.
-/// Independent of menu/navigation; pass any grid to preview or embed it.
+/// Selection/tap handling is injected; this view does not own route rules.
 struct GridBoardView: View {
     let grid: DeliveryGrid
+    var selectedCoordinates: Set<GridCoordinate> = []
+    var endpoint: GridCoordinate? = nil
+    var onSelect: ((GridCoordinate) -> Void)? = nil
 
     private let spacing: CGFloat = 6
 
@@ -22,8 +25,15 @@ struct GridBoardView: View {
                     HStack(spacing: spacing) {
                         ForEach(0 ..< DeliveryGrid.size, id: \.self) { column in
                             let coordinate = GridCoordinate(row: row, column: column)
-                            GridCellView(cell: grid.cell(at: coordinate))
-                                .frame(width: cellSide, height: cellSide)
+                            GridCellView(
+                                cell: grid.cell(at: coordinate),
+                                isSelected: selectedCoordinates.contains(coordinate),
+                                isEndpoint: endpoint == coordinate,
+                                onTap: {
+                                    onSelect?(coordinate)
+                                }
+                            )
+                            .frame(width: cellSide, height: cellSide)
                         }
                     }
                 }

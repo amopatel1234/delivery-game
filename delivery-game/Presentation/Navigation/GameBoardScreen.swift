@@ -5,13 +5,15 @@
 
 import SwiftUI
 
-/// Thin screen that loads a seeded job and hosts `GridBoardView`.
-/// Keeps navigation/loading concerns out of the reusable grid views.
+/// Thin screen that loads a seeded job and hosts route construction.
+/// Owns screen state; reusable grid views stay free of route rules.
 struct GameBoardScreen: View {
     let jobID: SeededJobID
 
     @State private var grid: DeliveryGrid?
+    @State private var routeBuilder = RouteBuilder()
     @State private var loadErrorMessage: String?
+    @State private var rejectionMessage: String?
 
     init(jobID: SeededJobID = SeededJobCatalogue.defaultJobID) {
         self.jobID = jobID
@@ -26,8 +28,19 @@ struct GameBoardScreen: View {
                         .foregroundStyle(GridPalette.ink)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    GridBoardView(grid: grid)
-                        .aspectRatio(1, contentMode: .fit)
+                    Text(statusText)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(rejectionMessage == nil ? GridPalette.mutedInk : GridPalette.destination)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityIdentifier("route-status")
+
+                    GridBoardView(
+                        grid: grid,
+                        selectedCoordinates: Set(routeBuilder.selectedCoordinates),
+                        endpoint: routeBuilder.endpoint,
+                        onSelect: handleSelection
+                    )
+                    .aspectRatio(1, contentMode: .fit)
 
                     Spacer(minLength: 0)
                 }
@@ -54,14 +67,44 @@ struct GameBoardScreen: View {
         SeededJobCatalogue.definition(for: jobID).displayName
     }
 
+    private var statusText: String {
+        if let rejectionMessage {
+            return rejectionMessage
+        }
+        let steps = max(routeBuilder.selectedCoordinates.count - 1, 0)
+        return "Route started at Depot · \(steps) step\(steps == 1 ? "" : "s")"
+    }
+
     private func loadBoard() {
         do {
             let job = try SeededJobCatalogue.load(id: jobID)
             grid = try DeliveryGrid(board: job.board)
+            routeBuilder = RouteBuilder()
+            rejectionMessage = nil
             loadErrorMessage = nil
         } catch {
             grid = nil
             loadErrorMessage = "Could not load board."
+        }
+    }
+
+    private func handleSelection(_ coordinate: GridCoordinate) {
+        switch routeBuilder.select(coordinate) {
+        case .accepted:
+            rejectionMessage = nil
+        case .rejected(let reason):
+            rejectionMessage = feedback(for: reason)
+        }
+    }
+
+    private func feedback(for reason: RouteRejectionReason) -> String {
+        switch reason {
+        case .notOrthogonallyAdjacent:
+            "Invalid move: choose a card beside the route end."
+        case .alreadyVisited:
+            "Invalid move: that card is already on the route."
+        case .outOfBounds:
+            "Invalid move: that card is off the board."
         }
     }
 }
