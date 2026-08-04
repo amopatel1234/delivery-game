@@ -29,8 +29,8 @@ struct GridBoardView: View {
                                 cell: grid.cell(at: coordinate),
                                 isSelected: selectedCoordinates.contains(coordinate),
                                 isEndpoint: endpoint == coordinate,
-                                onTap: onSelect.map { handler in
-                                    { handler(coordinate) }
+                                onTap: {
+                                    onSelect?(coordinate)
                                 }
                             )
                             .frame(width: cellSide, height: cellSide)
