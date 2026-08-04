@@ -54,6 +54,13 @@ nonisolated enum RouteSelectionResult: Equatable, Sendable {
     case rejected(RouteRejectionReason)
 }
 
+/// Result of attempting to undo the latest route step.
+nonisolated enum RouteUndoResult: Equatable, Sendable {
+    case undone(Route)
+    /// Depot is the minimum route state and cannot be removed.
+    case atDepot
+}
+
 /// Pure domain route construction. Starts at the depot and grows by orthogonal moves.
 nonisolated struct RouteBuilder: Equatable, Sendable {
     private(set) var route: Route
@@ -66,6 +73,11 @@ nonisolated struct RouteBuilder: Equatable, Sendable {
     var endpoint: GridCoordinate { route.endpoint }
 
     var selectedCoordinates: [GridCoordinate] { route.coordinates }
+
+    /// True when at least one non-depot step can be removed.
+    var canUndo: Bool {
+        route.coordinates.count > 1
+    }
 
     /// Attempts to append `coordinate` when it is a legal next step.
     mutating func select(_ coordinate: GridCoordinate) -> RouteSelectionResult {
@@ -83,5 +95,18 @@ nonisolated struct RouteBuilder: Equatable, Sendable {
 
         route = Route(coordinates: route.coordinates + [coordinate])
         return .accepted(route)
+    }
+
+    /// Removes only the most recently selected card. Never removes the depot.
+    @discardableResult
+    mutating func undo() -> RouteUndoResult {
+        guard canUndo else {
+            return .atDepot
+        }
+
+        var coordinates = route.coordinates
+        coordinates.removeLast()
+        route = Route(coordinates: coordinates)
+        return .undone(route)
     }
 }

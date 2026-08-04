@@ -53,6 +53,7 @@ nonisolated enum GridAccessibilityID {
     static let board = "grid-board"
     static let mainMenu = "main-menu"
     static let startGameButton = "main-menu-start-game"
+    static let undoButton = "route-undo-button"
 
     static func cell(row: Int, column: Int) -> String {
         "grid-cell-r\(row)-c\(column)"
