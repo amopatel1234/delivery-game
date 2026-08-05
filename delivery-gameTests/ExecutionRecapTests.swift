@@ -74,11 +74,11 @@ struct ExecutionRecapTests {
         #expect(recap.totalElapsedMinutes == prepared.state.elapsedMinutes)
         #expect(recap.totalDamageEvents == prepared.state.damageEventCount)
         #expect(recap.totalElapsedMinutes == recap.totalBaseTravelMinutes + recap.totalDelayMinutes)
-        #expect(recap.totalBaseTravelMinutes == 6) // clear+light+roadworks+fast0+4clear = 1+1+1+0+4
+        #expect(recap.totalBaseTravelMinutes == 7) // 1+1+1+0+4 clears
         #expect(recap.totalDelayMinutes == 3) // light 1 + roadworks 2
         #expect(recap.delayedCardCount == 2)
         #expect(recap.totalDamageEvents == 0)
-        #expect(recap.totalElapsedMinutes == 9)
+        #expect(recap.totalElapsedMinutes == 10)
     }
 
     @Test func damageAndDelaySummariesTrackHeavyTrafficOutcomes() throws {
