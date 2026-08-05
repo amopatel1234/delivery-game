@@ -45,13 +45,13 @@ nonisolated struct PlanningSummaryInput: Equatable, Sendable {
             PlanningMetric(
                 id: "delay_exposure",
                 title: "Delay exposure",
-                value: delayExposure ?? unavailableLabel,
+                value: delayExposure ?? Self.unavailableLabel,
                 isAvailable: delayExposure != nil
             ),
             PlanningMetric(
                 id: "damage_risk",
                 title: "Damage risk",
-                value: damageRisk ?? unavailableLabel,
+                value: damageRisk ?? Self.unavailableLabel,
                 isAvailable: damageRisk != nil
             ),
             PlanningMetric(
