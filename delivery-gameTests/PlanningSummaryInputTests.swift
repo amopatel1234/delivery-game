@@ -66,7 +66,7 @@ struct PlanningSummaryInputTests {
         #expect(summary.delayExposure == DelayExposureLevel.low.displayName)
         #expect(summary.damageRisk == DamageRiskLevel.low.displayName)
         #expect(summary.maximumReward != nil)
-        #expect(summary.metrics.allSatisfy(\.isAvailable))
+        #expect(summary.metrics.allSatisfy { $0.isAvailable })
     }
 
     @Test func estimatedArrivalIsLabeledAsApproximate() throws {
@@ -88,7 +88,12 @@ struct PlanningSummaryInputTests {
 
     @Test func summaryUpdatesImmediatelyWhenRouteChanges() throws {
         let job = try SeededJobCatalogue.loadDefault()
-        let grid = try DeliveryGrid(board: job.board)
+        let cells = GridCoordinate.allInRowMajorOrder.map { coordinate in
+            let cardType: CardType =
+                coordinate == GridCoordinate(row: 0, column: 1) ? .heavyTraffic : .clearRoad
+            return GridCell(coordinate: coordinate, cardType: cardType)
+        }
+        let grid = try DeliveryGrid(cells: cells)
         var builder = RouteBuilder()
 
         let depotOnly = PlanningSummaryInput.from(
@@ -105,13 +110,14 @@ struct PlanningSummaryInputTests {
         )
 
         #expect(depotOnly.estimatedArrivalMinutes == 0)
-        #expect(afterStep.estimatedArrivalMinutes != depotOnly.estimatedArrivalMinutes
-            || afterStep.delayExposure != depotOnly.delayExposure
-            || afterStep.damageRisk != depotOnly.damageRisk
-            || afterStep.maximumReward != depotOnly.maximumReward
-            || grid.cardType(at: GridCoordinate(row: 0, column: 1)) == .fastLane)
+        #expect(depotOnly.delayExposure == "Low")
+        #expect(depotOnly.damageRisk == "Low")
 
-        // Deterministic: same route always yields the same summary.
+        #expect(afterStep.estimatedArrivalMinutes == 1)
+        #expect(afterStep.delayExposure == "High")
+        #expect(afterStep.damageRisk == "Low")
+        #expect(afterStep.maximumReward != depotOnly.maximumReward)
+
         let again = PlanningSummaryInput.from(
             job: job,
             route: builder.route,
@@ -130,7 +136,6 @@ struct PlanningSummaryInputTests {
 
     @Test func liveSummaryMatchesDomainClassifiersAndEstimator() throws {
         let job = try SeededJobCatalogue.loadDefault()
-        let grid = try DeliveryGrid(board: job.board)
         var builder = RouteBuilder()
         _ = builder.select(GridCoordinate(row: 0, column: 1))
         _ = builder.select(GridCoordinate(row: 0, column: 2))
