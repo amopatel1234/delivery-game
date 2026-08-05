@@ -54,6 +54,7 @@ nonisolated enum GridAccessibilityID {
     static let mainMenu = "main-menu"
     static let startGameButton = "main-menu-start-game"
     static let undoButton = "route-undo-button"
+    static let routeValidationStatus = "route-validation-status"
 
     static func cell(row: Int, column: Int) -> String {
         "grid-cell-r\(row)-c\(column)"

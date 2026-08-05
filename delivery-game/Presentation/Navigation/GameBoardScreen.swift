@@ -34,6 +34,10 @@ struct GameBoardScreen: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityIdentifier("route-status")
 
+                    RouteValidationStatusView(
+                        validation: RouteValidator.validate(route: routeBuilder.route)
+                    )
+
                     GridBoardView(
                         grid: grid,
                         selectedCoordinates: Set(routeBuilder.selectedCoordinates),
