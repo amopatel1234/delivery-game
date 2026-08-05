@@ -16,7 +16,7 @@ struct PlanningSummaryInputTests {
         #expect(summary.deadlineMinutes == job.deadlineMinutes)
     }
 
-    @Test func analysisMetricsStartUnavailable() throws {
+    @Test func analysisMetricsStartUnavailableWithoutRouteAnalysis() throws {
         let summary = PlanningSummaryInput.from(job: try SeededJobCatalogue.loadDefault())
 
         #expect(summary.estimatedArrivalMinutes == nil)
@@ -38,6 +38,135 @@ struct PlanningSummaryInputTests {
             "maximum_reward",
         ])
         #expect(metrics.filter(\.isAvailable).map(\.id) == ["target_time", "deadline"])
+    }
+
+    @Test func distinguishesTargetTimeAndDeadlineAsSeparateRows() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let metrics = PlanningSummaryInput.from(job: job).metrics
+        let target = metrics.first { $0.id == "target_time" }
+        let deadline = metrics.first { $0.id == "deadline" }
+
+        #expect(target?.title == "Target time")
+        #expect(deadline?.title == "Deadline")
+        #expect(target?.value == "\(job.targetTimeMinutes) min")
+        #expect(deadline?.value == "\(job.deadlineMinutes) min")
+        #expect(target?.value != deadline?.value || job.targetTimeMinutes != job.deadlineMinutes)
+    }
+
+    @Test func liveSummaryFillsEveryCanonicalMetric() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let grid = try DeliveryGrid(board: job.board)
+        let summary = PlanningSummaryInput.from(
+            job: job,
+            route: RouteBuilder().route,
+            grid: grid
+        )
+
+        #expect(summary.estimatedArrivalMinutes == 0)
+        #expect(summary.delayExposure == DelayExposureLevel.low.displayName)
+        #expect(summary.damageRisk == DamageRiskLevel.low.displayName)
+        #expect(summary.maximumReward != nil)
+        #expect(summary.metrics.allSatisfy(\.isAvailable))
+    }
+
+    @Test func estimatedArrivalIsLabeledAsApproximate() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let grid = try DeliveryGrid(board: job.board)
+        var builder = RouteBuilder()
+        _ = builder.select(GridCoordinate(row: 0, column: 1))
+
+        let summary = PlanningSummaryInput.from(
+            job: job,
+            route: builder.route,
+            grid: grid
+        )
+        let arrival = summary.metrics.first { $0.id == "estimated_arrival" }
+
+        #expect(arrival?.value.hasPrefix("~") == true)
+        #expect(arrival?.value.hasSuffix(" min") == true)
+    }
+
+    @Test func summaryUpdatesImmediatelyWhenRouteChanges() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let grid = try DeliveryGrid(board: job.board)
+        var builder = RouteBuilder()
+
+        let depotOnly = PlanningSummaryInput.from(
+            job: job,
+            route: builder.route,
+            grid: grid
+        )
+
+        _ = builder.select(GridCoordinate(row: 0, column: 1))
+        let afterStep = PlanningSummaryInput.from(
+            job: job,
+            route: builder.route,
+            grid: grid
+        )
+
+        #expect(depotOnly.estimatedArrivalMinutes == 0)
+        #expect(afterStep.estimatedArrivalMinutes != depotOnly.estimatedArrivalMinutes
+            || afterStep.delayExposure != depotOnly.delayExposure
+            || afterStep.damageRisk != depotOnly.damageRisk
+            || afterStep.maximumReward != depotOnly.maximumReward
+            || grid.cardType(at: GridCoordinate(row: 0, column: 1)) == .fastLane)
+
+        // Deterministic: same route always yields the same summary.
+        let again = PlanningSummaryInput.from(
+            job: job,
+            route: builder.route,
+            grid: grid
+        )
+        #expect(again == afterStep)
+
+        _ = builder.undo()
+        let afterUndo = PlanningSummaryInput.from(
+            job: job,
+            route: builder.route,
+            grid: grid
+        )
+        #expect(afterUndo == depotOnly)
+    }
+
+    @Test func liveSummaryMatchesDomainClassifiersAndEstimator() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let grid = try DeliveryGrid(board: job.board)
+        var builder = RouteBuilder()
+        _ = builder.select(GridCoordinate(row: 0, column: 1))
+        _ = builder.select(GridCoordinate(row: 0, column: 2))
+
+        let request = try PlanningAnalysisRequest(route: builder.route, job: job)
+        let analysis = PlanningAnalyzer.analyze(request)
+        let summary = PlanningSummaryInput.from(job: job, analysis: analysis)
+
+        #expect(summary.estimatedArrivalMinutes == analysis.estimatedArrivalMinutes)
+        #expect(
+            summary.delayExposure
+                == DelayExposureClassifier.classify(analysis: analysis).displayName
+        )
+        #expect(
+            summary.damageRisk
+                == DamageRiskClassifier.classify(analysis: analysis).displayName
+        )
+        #expect(
+            summary.maximumReward
+                == MaximumRewardEstimator.estimate(analysis: analysis)
+        )
+    }
+
+    @Test func accessibilityLabelsDescribeEachPlanningValue() throws {
+        let job = try SeededJobCatalogue.loadDefault()
+        let grid = try DeliveryGrid(board: job.board)
+        let summary = PlanningSummaryInput.from(
+            job: job,
+            route: RouteBuilder().route,
+            grid: grid
+        )
+
+        for metric in summary.metrics {
+            #expect(metric.accessibilityLabel.contains(metric.title))
+            #expect(metric.accessibilityLabel.contains(metric.value))
+        }
     }
 
     @Test func confirmationEnabledOnlyForCompleteRoute() {

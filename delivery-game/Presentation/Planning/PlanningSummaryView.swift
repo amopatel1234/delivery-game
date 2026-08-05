@@ -27,9 +27,12 @@ struct PlanningSummaryView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(metric.isAvailable ? GridPalette.ink : GridPalette.mutedInk)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(metric.accessibilityLabel)
                 .accessibilityIdentifier(GridAccessibilityID.planningMetric(metric.id))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -42,7 +45,9 @@ struct PlanningSummaryView: View {
 #Preview {
     PlanningSummaryView(
         summary: PlanningSummaryInput.from(
-            job: try! SeededJobCatalogue.loadDefault()
+            job: try! SeededJobCatalogue.loadDefault(),
+            route: RouteBuilder().route,
+            grid: try! DeliveryGrid(board: try! SeededJobCatalogue.loadDefault().board)
         )
     )
     .padding()
