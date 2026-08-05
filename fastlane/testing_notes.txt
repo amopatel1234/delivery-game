@@ -1,6 +1,6 @@
-E3-S07 execution completion is in (domain). After a run finishes, ExecutionEngine.finish() emits an immutable ExecutionResult once for Epic 4 settlement.
+E4-S01 outcome evaluation is in (domain). Target Time / Deadline boundaries now mark a run completed or failed without calculating rewards.
 
 What to try:
-1. Main Menu → Start Game → complete a route → Confirm Route and watch playback + recap.
-2. Domain hand-off now includes sealed event history, elapsed time, damage, recap, and destination flag.
-3. Outcome / reward UI still comes in Epic 4 (E4-S01 next).
+1. Main Menu → Start Game → complete a route → Confirm Route; playback + recap still work.
+2. Outcome status is evaluated in domain from ExecutionResult (early / on-target / late / missed deadline).
+3. Reward settlement UI still comes in E4-S02+.
