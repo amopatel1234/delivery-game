@@ -64,6 +64,13 @@ nonisolated enum GridAccessibilityID {
     static let executionDamage = "execution-damage"
     static let executionStatus = "execution-status"
     static let executionConsequence = "execution-consequence"
+    static let executionRecap = "execution-recap"
+    static let executionRecapSummary = "execution-recap-summary"
+    static let executionRecapList = "execution-recap-list"
+
+    static func executionRecapEntry(_ index: Int) -> String {
+        "execution-recap-entry-\(index)"
+    }
 
     static func planningMetric(_ id: String) -> String {
         "planning-metric-\(id)"

@@ -1,7 +1,7 @@
-E3-S05 execution presentation is in. After Confirm Route, the domain run resolves immediately and the UI plays back player movement, active-card highlight, elapsed time, and damage.
+E3-S06 route recap is in. After execution playback finishes, a scrollable recap lists every entered card with move/delay/damage broken out, plus elapsed and damage totals.
 
 What to try:
-1. Main Menu → Start Game → build a complete route to Destination.
-2. Confirm Route — editing locks; progress HUD appears; player marker steps along the route.
-3. Watch elapsed time / damage update after each card; delay vs damage callouts when Heavy Traffic hits.
-4. Recap / outcome screens still come later (E3-S06 / Epic 4).
+1. Main Menu → Start Game → build a complete route → Confirm Route.
+2. Watch execution playback, then scroll the Route recap list under the progress HUD.
+3. Confirm each card appears once with separate move/delay/damage lines; totals match the run.
+4. Completed/failed payout still comes in Epic 4 (E3-S07 hands off next).
