@@ -1,8 +1,8 @@
-E2-S02 planning summary is live.
+E2-S06 route confirmation is live.
 
 What to try:
 1. Main Menu → Start Game.
-2. Build a route on the grid and watch Planning summary update immediately.
-3. Confirm Estimated arrival (~N min), Target time, Deadline, Delay exposure, Damage risk, and Maximum reward all show values (not Unavailable).
-4. Undo steps and confirm metrics recalculate.
-5. Reach the destination — Confirm Route enables (execution still a later story).
+2. Build a route to the Destination and watch Planning summary update.
+3. Confirm Route — editing should lock (no grid taps / undo / confirm again).
+4. Check the "Route confirmed" hand-off panel shows the locked execution input.
+5. Execution simulation still arrives in Epic 3.
