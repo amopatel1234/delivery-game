@@ -42,30 +42,3 @@ struct ExecutionHandoffView: View {
         )
     }
 }
-
-#Preview {
-    let job = try! SeededJobCatalogue.loadDefault()
-    let grid = try! DeliveryGrid(board: job.board)
-    let route = Route(coordinates: [
-        .depot,
-        GridCoordinate(row: 0, column: 1),
-        GridCoordinate(row: 0, column: 2),
-        GridCoordinate(row: 0, column: 3),
-        GridCoordinate(row: 0, column: 4),
-        GridCoordinate(row: 1, column: 4),
-        GridCoordinate(row: 2, column: 4),
-        GridCoordinate(row: 3, column: 4),
-        .destination,
-    ])
-    let result = RouteConfirmer.confirm(
-        route: route,
-        job: job,
-        grid: grid,
-        alreadyConfirmed: false
-    )
-    if case .confirmed(let input) = result {
-        ExecutionHandoffView(input: input)
-            .padding()
-            .background(GridPalette.canvas)
-    }
-}

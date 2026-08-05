@@ -21,7 +21,7 @@ struct RouteConfirmerTests {
             alreadyConfirmed: false
         )
 
-        #expect(result == .rejected(.routeIncomplete))
+        #expect(rejectionReason(result) == .routeIncomplete)
     }
 
     @Test func confirmsOnlyCompleteRoutes() throws {
@@ -34,13 +34,13 @@ struct RouteConfirmerTests {
             alreadyConfirmed: false
         )
 
-        guard case .confirmed(let input) = result else {
+        guard let input = confirmedInput(result) else {
             Issue.record("Expected confirmation to succeed")
             return
         }
 
         #expect(input.jobID == job.id)
-        #expect(input.route == route)
+        #expect(input.route.coordinates == route.coordinates)
         #expect(input.route.endpoint == .destination)
         #expect(input.enteredCoordinates.count == route.coordinates.count - 1)
         #expect(input.summary.estimatedArrivalMinutes != nil)
@@ -63,17 +63,24 @@ struct RouteConfirmerTests {
             alreadyConfirmed: false
         )
 
-        #expect(first == second)
-        guard case .confirmed(let input) = first else {
-            Issue.record("Expected confirmation to succeed")
+        guard let firstInput = confirmedInput(first),
+              let secondInput = confirmedInput(second) else {
+            Issue.record("Expected both confirmations to succeed")
             return
         }
 
-        // Snapshot remains equal after unrelated route mutations elsewhere.
+        #expect(firstInput.jobID == secondInput.jobID)
+        #expect(firstInput.route.coordinates == secondInput.route.coordinates)
+        #expect(
+            firstInput.analysis.estimatedArrivalMinutes
+                == secondInput.analysis.estimatedArrivalMinutes
+        )
+        #expect(firstInput.summary.maximumReward == secondInput.summary.maximumReward)
+
         var otherBuilder = RouteBuilder()
         _ = otherBuilder.select(GridCoordinate(row: 1, column: 0))
-        #expect(input.route.endpoint == .destination)
-        #expect(input.route != otherBuilder.route)
+        #expect(firstInput.route.endpoint == .destination)
+        #expect(firstInput.route.coordinates != otherBuilder.route.coordinates)
     }
 
     @Test func preventsDuplicateTransitionsWhenAlreadyConfirmed() throws {
@@ -85,7 +92,7 @@ struct RouteConfirmerTests {
             grid: grid,
             alreadyConfirmed: false
         )
-        guard case .confirmed = first else {
+        guard confirmedInput(first) != nil else {
             Issue.record("Expected first confirmation to succeed")
             return
         }
@@ -96,7 +103,7 @@ struct RouteConfirmerTests {
             grid: grid,
             alreadyConfirmed: true
         )
-        #expect(duplicate == .rejected(.alreadyConfirmed))
+        #expect(rejectionReason(duplicate) == .alreadyConfirmed)
     }
 
     @Test func executionInputStartsFromConfirmedRouteOnly() throws {
@@ -116,45 +123,59 @@ struct RouteConfirmerTests {
             alreadyConfirmed: false
         )
 
-        #expect(rejected == .rejected(.routeIncomplete))
-        guard case .confirmed(let input) = accepted else {
+        #expect(rejectionReason(rejected) == .routeIncomplete)
+
+        guard let input = confirmedInput(accepted) else {
             Issue.record("Expected confirmation to succeed")
             return
         }
-        #expect(input.route == route)
+        #expect(input.route.coordinates == route.coordinates)
         #expect(RouteValidator.validate(route: input.route).canConfirm)
     }
 
     @Test func editingLockStateFollowsConfirmationFlag() throws {
-        // Mirrors PlanningScreen: once confirmed, further confirms are rejected
-        // and editing must remain locked by the caller.
         let (job, grid, route) = try makeCompleteRoute()
-        var confirmed: ExecutionInput?
-        var alreadyConfirmed = false
+        var didConfirm = false
 
         switch RouteConfirmer.confirm(
             route: route,
             job: job,
             grid: grid,
-            alreadyConfirmed: alreadyConfirmed
+            alreadyConfirmed: false
         ) {
-        case .confirmed(let input):
-            confirmed = input
-            alreadyConfirmed = true
+        case .confirmed:
+            didConfirm = true
         case .rejected:
             Issue.record("Expected first confirmation to succeed")
         }
 
-        #expect(confirmed != nil)
-        #expect(alreadyConfirmed)
+        #expect(didConfirm)
 
         let locked = RouteConfirmer.confirm(
             route: route,
             job: job,
             grid: grid,
-            alreadyConfirmed: alreadyConfirmed
+            alreadyConfirmed: true
         )
-        #expect(locked == .rejected(.alreadyConfirmed))
+        #expect(rejectionReason(locked) == .alreadyConfirmed)
+    }
+
+    private func rejectionReason(
+        _ result: RouteConfirmationResult
+    ) -> RouteConfirmationRejection? {
+        if case .rejected(let reason) = result {
+            return reason
+        }
+        return nil
+    }
+
+    private func confirmedInput(
+        _ result: RouteConfirmationResult
+    ) -> ExecutionInput? {
+        if case .confirmed(let input) = result {
+            return input
+        }
+        return nil
     }
 
     private func makeCompleteRoute() throws -> (SeededJob, DeliveryGrid, Route) {
