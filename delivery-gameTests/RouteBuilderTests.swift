@@ -92,4 +92,53 @@ struct RouteBuilderTests {
         #expect(!origin.isOrthogonallyAdjacent(to: GridCoordinate(row: 2, column: 2)))
         #expect(!origin.isOrthogonallyAdjacent(to: GridCoordinate(row: 2, column: 4)))
     }
+
+    @Test func undoRemovesOnlyMostRecentCard() {
+        var builder = RouteBuilder()
+        let right = GridCoordinate(row: 0, column: 1)
+        let down = GridCoordinate(row: 1, column: 1)
+
+        _ = builder.select(right)
+        _ = builder.select(down)
+
+        #expect(builder.undo() == .undone(Route(coordinates: [.depot, right])))
+        #expect(builder.endpoint == right)
+        #expect(builder.selectedCoordinates == [.depot, right])
+    }
+
+    @Test func repeatedUndoStopsAtDepotAndNeverRemovesIt() {
+        var builder = RouteBuilder()
+        let path = [
+            GridCoordinate(row: 0, column: 1),
+            GridCoordinate(row: 0, column: 2),
+            GridCoordinate(row: 1, column: 2),
+        ]
+
+        for coordinate in path {
+            _ = builder.select(coordinate)
+        }
+
+        #expect(builder.canUndo)
+        #expect(builder.undo() == .undone(Route(coordinates: [.depot, path[0], path[1]])))
+        #expect(builder.undo() == .undone(Route(coordinates: [.depot, path[0]])))
+        #expect(builder.undo() == .undone(Route(coordinates: [.depot])))
+        #expect(builder.undo() == .atDepot)
+        #expect(builder.undo() == .atDepot)
+        #expect(!builder.canUndo)
+        #expect(builder.route.coordinates == [.depot])
+        #expect(builder.endpoint == .depot)
+    }
+
+    @Test func undoPreservesValidOrderedRoute() {
+        var builder = RouteBuilder()
+        let right = GridCoordinate(row: 0, column: 1)
+        let farther = GridCoordinate(row: 0, column: 2)
+
+        _ = builder.select(right)
+        _ = builder.select(farther)
+        _ = builder.undo()
+
+        #expect(builder.selectedCoordinates == [.depot, right])
+        #expect(builder.select(farther) == .accepted(Route(coordinates: [.depot, right, farther])))
+    }
 }

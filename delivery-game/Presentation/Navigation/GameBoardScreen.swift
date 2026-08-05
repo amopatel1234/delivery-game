@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// Thin screen that loads a seeded job and hosts route construction.
-/// Owns screen state; reusable grid views stay free of route rules.
+/// Owns screen state; reusable grid/undo views stay free of route rules.
 struct GameBoardScreen: View {
     let jobID: SeededJobID
 
@@ -41,6 +41,11 @@ struct GameBoardScreen: View {
                         onSelect: handleSelection
                     )
                     .aspectRatio(1, contentMode: .fit)
+
+                    RouteUndoButton(
+                        isEnabled: routeBuilder.canUndo,
+                        action: handleUndo
+                    )
 
                     Spacer(minLength: 0)
                 }
@@ -94,6 +99,15 @@ struct GameBoardScreen: View {
             rejectionMessage = nil
         case .rejected(let reason):
             rejectionMessage = feedback(for: reason)
+        }
+    }
+
+    private func handleUndo() {
+        switch routeBuilder.undo() {
+        case .undone:
+            rejectionMessage = nil
+        case .atDepot:
+            rejectionMessage = "Route is already back at the Depot."
         }
     }
 
