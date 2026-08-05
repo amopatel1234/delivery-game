@@ -1,6 +1,7 @@
-Hotfix: planning summary no longer crashes on longer Clear Road routes (Int overflow in probability combine).
+E3-S02 card resolution is in (domain). Also includes the planning-summary overflow hotfix.
 
 What to try:
-1. Main Menu → Start Game.
-2. Build any route (including mostly Clear Road) and confirm Planning summary updates without crashing.
-3. Reach Destination → Confirm Route still locks editing.
+1. Main Menu → Start Game and build any route (including Clear Road) — Planning summary should update without crashing.
+2. Reach Destination → Confirm Route locks editing; hand-off panel still appears.
+3. Execution simulation UI still comes later; card travel/delay rules now resolve in the domain engine.
+4. Heavy Traffic hazard rolls arrive in E3-S03.
