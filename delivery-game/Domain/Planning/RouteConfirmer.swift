@@ -37,23 +37,17 @@ nonisolated enum RouteConfirmer {
             return .rejected(.routeIncomplete)
         }
 
-        let request = PlanningAnalysisRequest(
-            route: route,
-            grid: grid,
-            targetTimeMinutes: job.targetTimeMinutes,
-            deadlineMinutes: job.deadlineMinutes,
-            economy: job.economy
-        )
-        let analysis = PlanningAnalyzer.analyze(request)
-        let summary = PlanningSummaryInput.from(job: job, analysis: analysis)
+        let enteredCoordinates = Array(route.coordinates.dropFirst())
+        let enteredCardTypes = enteredCoordinates.map { grid.cardType(at: $0) }
 
         let input = ExecutionInput(
             jobID: job.id,
             jobDisplayName: job.displayName,
+            targetTimeMinutes: job.targetTimeMinutes,
+            deadlineMinutes: job.deadlineMinutes,
+            economy: job.economy,
             route: route,
-            grid: grid,
-            analysis: analysis,
-            summary: summary
+            enteredCardTypes: enteredCardTypes
         )
         return .confirmed(input)
     }

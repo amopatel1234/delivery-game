@@ -12,12 +12,14 @@ import Foundation
 nonisolated struct ExecutionInput: Equatable, Sendable {
     let jobID: SeededJobID
     let jobDisplayName: String
+    let targetTimeMinutes: Int
+    let deadlineMinutes: Int
+    let economy: EconomyConfiguration
+    /// Full ordered route including the depot.
     let route: Route
-    let grid: DeliveryGrid
-    let analysis: PlanningAnalysisResult
-    let summary: PlanningSummaryInput
+    /// Card types for every entered coordinate after the depot, in route order.
+    let enteredCardTypes: [CardType]
 
-    /// Ordered entered cards after the depot, matching analysis traversal.
     var enteredCoordinates: [GridCoordinate] {
         Array(route.coordinates.dropFirst())
     }

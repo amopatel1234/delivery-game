@@ -13,6 +13,7 @@ struct PlanningScreen: View {
     @State private var grid: DeliveryGrid?
     @State private var routeBuilder = RouteBuilder()
     @State private var executionInput: ExecutionInput?
+    @State private var lockedSummary: PlanningSummaryInput?
     @State private var loadErrorMessage: String?
     @State private var rejectionMessage: String?
 
@@ -29,8 +30,8 @@ struct PlanningScreen: View {
     }
 
     private var summary: PlanningSummaryInput {
-        if let executionInput {
-            return executionInput.summary
+        if let lockedSummary {
+            return lockedSummary
         }
         guard let job, let grid else {
             return PlanningSummaryInput(
@@ -144,12 +145,14 @@ struct PlanningScreen: View {
             grid = try DeliveryGrid(board: loadedJob.board)
             routeBuilder = RouteBuilder()
             executionInput = nil
+            lockedSummary = nil
             rejectionMessage = nil
             loadErrorMessage = nil
         } catch {
             job = nil
             grid = nil
             executionInput = nil
+            lockedSummary = nil
             loadErrorMessage = "Could not load job."
         }
     }
@@ -184,6 +187,7 @@ struct PlanningScreen: View {
         ) {
         case .confirmed(let input):
             executionInput = input
+            lockedSummary = summary
             rejectionMessage = nil
         case .rejected(.routeIncomplete):
             rejectionMessage = "Reach the Destination before confirming."
