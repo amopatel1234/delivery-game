@@ -7,7 +7,7 @@ import Foundation
 
 /// Lifecycle phase of a delivery run.
 nonisolated enum ExecutionPhase: String, Equatable, Sendable {
-    /// Engine created but `start()` has not been called.
+    10|    /// Engine created but `start()` has not been called.
     case idle
     /// At least one card remains to resolve.
     case running
@@ -17,7 +17,7 @@ nonisolated enum ExecutionPhase: String, Equatable, Sendable {
 
 /// One sequential resolution record for an entered card.
 nonisolated struct ExecutionStepRecord: Equatable, Sendable {
-    /// Zero-based index into `ExecutionInput.enteredCoordinates`.
+    20|    /// Zero-based index into `ExecutionInput.enteredCoordinates`.
     let enteredIndex: Int
     let coordinate: GridCoordinate
     let cardType: CardType
@@ -27,7 +27,7 @@ nonisolated struct ExecutionStepRecord: Equatable, Sendable {
     let didDamage: Bool
 
     var minutesAdded: Int {
-        baseTravelMinutes + delayMinutesApplied
+    30|        baseTravelMinutes + delayMinutesApplied
     }
 
     init(
@@ -47,7 +47,7 @@ nonisolated struct ExecutionStepRecord: Equatable, Sendable {
 
 /// Mutable run-scoped execution state owned by `ExecutionEngine`.
 nonisolated struct ExecutionState: Equatable, Sendable {
-    let input: ExecutionInput
+    40|    let input: ExecutionInput
     private(set) var phase: ExecutionPhase
     /// Index of the next entered card to resolve.
     private(set) var nextEnteredIndex: Int
@@ -57,7 +57,7 @@ nonisolated struct ExecutionState: Equatable, Sendable {
     private(set) var damageEventCount: Int
     private(set) var resolvedSteps: [ExecutionStepRecord]
 
-    var isComplete: Bool {
+    50|    var isComplete: Bool {
         phase == .completed
     }
 
@@ -67,7 +67,7 @@ nonisolated struct ExecutionState: Equatable, Sendable {
 
     /// Depot before any step; otherwise the most recently resolved coordinate.
     var currentCoordinate: GridCoordinate {
-        if let last = resolvedSteps.last {
+    60|        if let last = resolvedSteps.last {
             return last.coordinate
         }
         return input.route.depot

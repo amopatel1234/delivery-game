@@ -264,4 +264,25 @@ struct IndependentProbabilityTests {
         #expect(IndependentProbability.combinedPermille([1000, 500]) == 1000)
         #expect(IndependentProbability.combinedPermille([75, 75]) == 145)
     }
+
+    @Test func manyZeroProbabilityEventsDoNotOverflowAndStayZero() {
+        let zeros = Array(repeating: 0, count: 25)
+        #expect(IndependentProbability.combinedPermille(zeros) == 0)
+    }
+
+    @Test func longRouteOfClearRoadSurvivalFactorsDoesNotOverflow() {
+        // Regression: previous product form multiplied 1000^n and trapped on device.
+        let clearRoadDelays = Array(repeating: 0, count: 8)
+        #expect(IndependentProbability.combinedPermille(clearRoadDelays) == 0)
+
+        let manyHeavyTrafficDamage = Array(repeating: 75, count: 12)
+        let combined = IndependentProbability.combinedPermille(manyHeavyTrafficDamage)
+        #expect(combined > 75)
+        #expect(combined < 1000)
+    }
+
+    @Test func clampsOutOfRangeInputs() {
+        #expect(IndependentProbability.combinedPermille([-10]) == 0)
+        #expect(IndependentProbability.combinedPermille([1500]) == 1000)
+    }
 }

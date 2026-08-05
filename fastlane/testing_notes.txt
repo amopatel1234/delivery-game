@@ -1,6 +1,7 @@
-E3-S02 card resolution is in (domain).
+E3-S02 card resolution is in (domain). Also includes the planning-summary overflow hotfix.
 
 What to try:
-1. Confirm a route as before — hand-off UI unchanged.
-2. Execution simulation UI still comes later; card travel/delay rules now resolve in the domain engine.
-3. Heavy Traffic hazard rolls arrive in E3-S03.
+1. Main Menu → Start Game and build any route (including Clear Road) — Planning summary should update without crashing.
+2. Reach Destination → Confirm Route locks editing; hand-off panel still appears.
+3. Execution simulation UI still comes later; card travel/delay rules now resolve in the domain engine.
+4. Heavy Traffic hazard rolls arrive in E3-S03.
