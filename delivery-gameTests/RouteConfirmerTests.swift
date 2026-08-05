@@ -85,10 +85,10 @@ struct RouteConfirmerTests {
             grid: grid,
             alreadyConfirmed: false
         )
-        #expect({
-            if case .confirmed = first { return true }
-            return false
-        }())
+        guard case .confirmed = first else {
+            Issue.record("Expected first confirmation to succeed")
+            return
+        }
 
         let duplicate = RouteConfirmer.confirm(
             route: route,

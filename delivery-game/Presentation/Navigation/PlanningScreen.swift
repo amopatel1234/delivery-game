@@ -71,7 +71,11 @@ struct PlanningScreen: View {
                             grid: grid,
                             selectedCoordinates: Set(routeBuilder.selectedCoordinates),
                             endpoint: routeBuilder.endpoint,
-                            onSelect: isEditingLocked ? nil : handleSelection
+                            onSelect: isEditingLocked
+                                ? nil
+                                : { coordinate in
+                                    handleSelection(coordinate)
+                                }
                         )
                         .aspectRatio(1, contentMode: .fit)
                         .allowsHitTesting(!isEditingLocked)
