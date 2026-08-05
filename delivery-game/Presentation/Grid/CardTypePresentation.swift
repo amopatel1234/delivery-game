@@ -57,6 +57,7 @@ nonisolated enum GridAccessibilityID {
     static let routeValidationStatus = "route-validation-status"
     static let planningSummary = "planning-summary"
     static let confirmRouteButton = "route-confirm-button"
+    static let executionHandoff = "execution-handoff"
 
     static func planningMetric(_ id: String) -> String {
         "planning-metric-\(id)"

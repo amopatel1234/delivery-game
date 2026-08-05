@@ -12,12 +12,17 @@ struct PlanningScreen: View {
     @State private var job: SeededJob?
     @State private var grid: DeliveryGrid?
     @State private var routeBuilder = RouteBuilder()
+    @State private var executionInput: ExecutionInput?
+    @State private var lockedSummary: PlanningSummaryInput?
     @State private var loadErrorMessage: String?
     @State private var rejectionMessage: String?
-    @State private var confirmMessage: String?
 
     init(jobID: SeededJobID = SeededJobCatalogue.defaultJobID) {
         self.jobID = jobID
+    }
+
+    private var isEditingLocked: Bool {
+        executionInput != nil
     }
 
     private var validation: RouteValidationResult {
@@ -25,6 +30,9 @@ struct PlanningScreen: View {
     }
 
     private var summary: PlanningSummaryInput {
+        if let lockedSummary {
+            return lockedSummary
+        }
         guard let job, let grid else {
             return PlanningSummaryInput(
                 targetTimeMinutes: 0,
@@ -64,29 +72,30 @@ struct PlanningScreen: View {
                             grid: grid,
                             selectedCoordinates: Set(routeBuilder.selectedCoordinates),
                             endpoint: routeBuilder.endpoint,
-                            onSelect: handleSelection
+                            onSelect: isEditingLocked
+                                ? nil
+                                : { coordinate in
+                                    handleSelection(coordinate)
+                                }
                         )
                         .aspectRatio(1, contentMode: .fit)
+                        .allowsHitTesting(!isEditingLocked)
 
                         PlanningSummaryView(summary: summary)
 
+                        if let executionInput {
+                            ExecutionHandoffView(input: executionInput)
+                        }
+
                         RouteUndoButton(
-                            isEnabled: routeBuilder.canUndo,
+                            isEnabled: !isEditingLocked && routeBuilder.canUndo,
                             action: handleUndo
                         )
 
                         RouteConfirmButton(
-                            isEnabled: validation.canConfirm,
+                            isEnabled: !isEditingLocked && validation.canConfirm,
                             action: handleConfirm
                         )
-
-                        if let confirmMessage {
-                            Text(confirmMessage)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(GridPalette.mutedInk)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .accessibilityIdentifier("route-confirm-message")
-                        }
                     }
                     .padding(16)
                 }
@@ -109,17 +118,20 @@ struct PlanningScreen: View {
     }
 
     private var routeStatusText: String {
+        if isEditingLocked {
+            return "Route confirmed · editing locked"
+        }
         if let rejectionMessage {
             return rejectionMessage
-        }
-        if let confirmMessage {
-            return confirmMessage
         }
         let steps = max(routeBuilder.selectedCoordinates.count - 1, 0)
         return "Route started at Depot · \(steps) step\(steps == 1 ? "" : "s")"
     }
 
     private var statusColor: Color {
+        if isEditingLocked {
+            return GridPalette.depot
+        }
         if rejectionMessage != nil {
             return GridPalette.destination
         }
@@ -132,40 +144,56 @@ struct PlanningScreen: View {
             job = loadedJob
             grid = try DeliveryGrid(board: loadedJob.board)
             routeBuilder = RouteBuilder()
+            executionInput = nil
+            lockedSummary = nil
             rejectionMessage = nil
-            confirmMessage = nil
             loadErrorMessage = nil
         } catch {
             job = nil
             grid = nil
+            executionInput = nil
+            lockedSummary = nil
             loadErrorMessage = "Could not load job."
         }
     }
 
     private func handleSelection(_ coordinate: GridCoordinate) {
+        guard !isEditingLocked else { return }
         switch routeBuilder.select(coordinate) {
         case .accepted:
             rejectionMessage = nil
-            confirmMessage = nil
         case .rejected(let reason):
             rejectionMessage = feedback(for: reason)
         }
     }
 
     private func handleUndo() {
+        guard !isEditingLocked else { return }
         switch routeBuilder.undo() {
         case .undone:
             rejectionMessage = nil
-            confirmMessage = nil
         case .atDepot:
             rejectionMessage = "Route is already back at the Depot."
         }
     }
 
     private func handleConfirm() {
-        guard validation.canConfirm else { return }
-        // Confirmation transition is implemented in a later story.
-        confirmMessage = "Route ready to confirm. Execution starts in a later update."
+        guard let job, let grid else { return }
+        switch RouteConfirmer.confirm(
+            route: routeBuilder.route,
+            job: job,
+            grid: grid,
+            alreadyConfirmed: isEditingLocked
+        ) {
+        case .confirmed(let input):
+            executionInput = input
+            lockedSummary = summary
+            rejectionMessage = nil
+        case .rejected(.routeIncomplete):
+            rejectionMessage = "Reach the Destination before confirming."
+        case .rejected(.alreadyConfirmed):
+            rejectionMessage = "Route already confirmed."
+        }
     }
 
     private func feedback(for reason: RouteRejectionReason) -> String {

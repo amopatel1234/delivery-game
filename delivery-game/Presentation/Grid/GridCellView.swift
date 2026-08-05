@@ -49,6 +49,7 @@ struct GridCellView: View {
             .opacity(isSelected || cell.position != .standard ? 1 : 0.92)
         }
         .buttonStyle(.plain)
+        .disabled(onTap == nil)
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(GridAccessibilityID.cell(cell.coordinate))
         .accessibilityLabel(accessibilityLabel)
