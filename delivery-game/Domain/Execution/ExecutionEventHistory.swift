@@ -74,12 +74,15 @@ nonisolated struct ExecutionEventLog: Equatable, Sendable {
     }
 
     /// Appends one resolution event while the log is open.
-    mutating func record(_ event: ExecutionResolutionEvent) -> Result<Void, ExecutionEventLogRejection> {
+    ///
+    /// Returns `nil` on success, or `.sealed` when the log is immutable.
+    @discardableResult
+    mutating func record(_ event: ExecutionResolutionEvent) -> ExecutionEventLogRejection? {
         if isSealed {
-            return .failure(.sealed)
+            return .sealed
         }
         events.append(event)
-        return .success(())
+        return nil
     }
 
     /// Freezes the log after execution completes. Idempotent.

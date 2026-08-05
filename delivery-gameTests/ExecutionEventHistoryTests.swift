@@ -153,7 +153,7 @@ struct ExecutionEventHistoryTests {
             elapsedMinutesAfter: state.elapsedMinutes + 1,
             cumulativeDamageEventCount: state.damageEventCount
         )
-        #expect(sealedLog.record(extra) == .failure(.sealed))
+        #expect(sealedLog.record(extra) == .sealed)
         #expect(sealedLog.events.count == state.eventLog.events.count)
     }
 

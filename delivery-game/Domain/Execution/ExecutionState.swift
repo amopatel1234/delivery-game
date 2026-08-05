@@ -117,8 +117,8 @@ nonisolated struct ExecutionState: Equatable, Sendable {
             elapsedMinutesAfter: elapsedMinutes,
             cumulativeDamageEventCount: damageEventCount
         )
-        let recordResult = eventLog.record(event)
-        precondition(recordResult == .success(()), "Event log must accept events before seal")
+        let rejection = eventLog.record(event)
+        precondition(rejection == nil, "Event log must accept events before seal")
 
         if nextEnteredIndex >= input.enteredCoordinates.count {
             phase = .completed
