@@ -25,7 +25,7 @@ struct PlanningScreen: View {
     }
 
     private var summary: PlanningSummaryInput {
-        guard let job else {
+        guard let job, let grid else {
             return PlanningSummaryInput(
                 targetTimeMinutes: 0,
                 deadlineMinutes: 0,
@@ -35,7 +35,11 @@ struct PlanningScreen: View {
                 maximumReward: nil
             )
         }
-        return PlanningSummaryInput.from(job: job)
+        return PlanningSummaryInput.from(
+            job: job,
+            route: routeBuilder.route,
+            grid: grid
+        )
     }
 
     var body: some View {
