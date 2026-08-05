@@ -16,13 +16,33 @@ nonisolated enum ExecutionPhase: String, Equatable, Sendable {
 }
 
 /// One sequential resolution record for an entered card.
-///
-/// Card timing and hazard details are filled by later Epic 3 stories.
 nonisolated struct ExecutionStepRecord: Equatable, Sendable {
     /// Zero-based index into `ExecutionInput.enteredCoordinates`.
     let enteredIndex: Int
     let coordinate: GridCoordinate
     let cardType: CardType
+    let baseTravelMinutes: Int
+    let delayMinutesApplied: Int
+    let didDelay: Bool
+    let didDamage: Bool
+
+    var minutesAdded: Int {
+        baseTravelMinutes + delayMinutesApplied
+    }
+
+    init(
+        enteredIndex: Int,
+        coordinate: GridCoordinate,
+        outcome: CardResolutionOutcome
+    ) {
+        self.enteredIndex = enteredIndex
+        self.coordinate = coordinate
+        self.cardType = outcome.cardType
+        self.baseTravelMinutes = outcome.baseTravelMinutes
+        self.delayMinutesApplied = outcome.delayMinutesApplied
+        self.didDelay = outcome.didDelay
+        self.didDamage = outcome.didDamage
+    }
 }
 
 /// Mutable run-scoped execution state owned by `ExecutionEngine`.
@@ -31,9 +51,9 @@ nonisolated struct ExecutionState: Equatable, Sendable {
     private(set) var phase: ExecutionPhase
     /// Index of the next entered card to resolve.
     private(set) var nextEnteredIndex: Int
-    /// Elapsed delivery minutes. Timing accumulation arrives in E3-S02.
+    /// Elapsed delivery minutes accumulated from resolved cards.
     private(set) var elapsedMinutes: Int
-    /// Run-scoped damage events. Hazard rolls arrive in E3-S03.
+    /// Run-scoped damage events recorded so far.
     private(set) var damageEventCount: Int
     private(set) var resolvedSteps: [ExecutionStepRecord]
 
@@ -68,6 +88,10 @@ nonisolated struct ExecutionState: Equatable, Sendable {
 
     mutating func appendResolvedStep(_ step: ExecutionStepRecord) {
         resolvedSteps.append(step)
+        elapsedMinutes += step.minutesAdded
+        if step.didDamage {
+            damageEventCount += 1
+        }
         nextEnteredIndex = step.enteredIndex + 1
         if nextEnteredIndex >= input.enteredCoordinates.count {
             phase = .completed

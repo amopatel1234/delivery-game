@@ -1,6 +1,6 @@
-E3-S01 execution engine domain is in.
+E3-S02 card resolution is in (domain).
 
 What to try:
-1. Main Menu → Start Game → build a route to Destination → Confirm Route.
-2. Editing still locks and the hand-off panel still appears.
-3. Card-by-card simulation UI is not wired yet — domain lifecycle lands first; playable execution arrives in later Epic 3 stories.
+1. Confirm a route as before — hand-off UI unchanged.
+2. Execution simulation UI still comes later; card travel/delay rules now resolve in the domain engine.
+3. Heavy Traffic hazard rolls arrive in E3-S03.

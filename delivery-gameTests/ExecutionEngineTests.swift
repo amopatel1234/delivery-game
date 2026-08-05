@@ -98,14 +98,76 @@ struct ExecutionEngineTests {
         #expect(secondState.phase == .completed)
         #expect(firstState.resolvedSteps.count == secondState.resolvedSteps.count)
         #expect(firstState.nextEnteredIndex == secondState.nextEnteredIndex)
-        #expect(firstState.elapsedMinutes == 0)
-        #expect(firstState.damageEventCount == 0)
+        #expect(firstState.elapsedMinutes == secondState.elapsedMinutes)
+        #expect(firstState.damageEventCount == secondState.damageEventCount)
+        #expect(firstState.elapsedMinutes > 0)
 
         for (lhs, rhs) in zip(firstState.resolvedSteps, secondState.resolvedSteps) {
             #expect(lhs.enteredIndex == rhs.enteredIndex)
             #expect(lhs.coordinate == rhs.coordinate)
             #expect(lhs.cardType == rhs.cardType)
+            #expect(lhs.minutesAdded == rhs.minutesAdded)
+            #expect(lhs.didDelay == rhs.didDelay)
+            #expect(lhs.didDamage == rhs.didDamage)
         }
+    }
+
+    @Test func accumulatesTravelTimeFromResolvedCards() throws {
+        let input = try makeExecutionInput(cardTypes: [
+            .clearRoad,
+            .lightTraffic,
+            .fastLane,
+            .roadworks,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+        ])
+        var engine = ExecutionEngine(input: input)
+        _ = engine.start()
+        guard case .completed(let state) = engine.runToCompletion() else {
+            Issue.record("Expected completion")
+            return
+        }
+
+        // clear 1 + light 2 + fast 0 + roadworks 3 + four clear 4 = 10
+        #expect(state.elapsedMinutes == 10)
+        #expect(state.damageEventCount == 0)
+        #expect(state.resolvedSteps.map(\.cardType) == input.enteredCardTypes)
+    }
+
+    @Test func heavyTrafficDamageAccumulatesOnlyWhenHazardSaysSo() throws {
+        let input = try makeExecutionInput(cardTypes: [
+            .heavyTraffic,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+            .clearRoad,
+        ])
+
+        var safeEngine = ExecutionEngine(input: input, heavyTrafficHazard: .noHazard)
+        _ = safeEngine.start()
+        guard case .completed(let safeState) = safeEngine.runToCompletion() else {
+            Issue.record("Expected safe completion")
+            return
+        }
+        #expect(safeState.elapsedMinutes == 8) // 1 + 7*1
+        #expect(safeState.damageEventCount == 0)
+
+        var riskyEngine = ExecutionEngine(
+            input: input,
+            heavyTrafficHazard: .delayedAndDamaged
+        )
+        _ = riskyEngine.start()
+        guard case .completed(let riskyState) = riskyEngine.runToCompletion() else {
+            Issue.record("Expected risky completion")
+            return
+        }
+        #expect(riskyState.elapsedMinutes == 10) // 1+2 + 7
+        #expect(riskyState.damageEventCount == 1)
     }
 
     @Test func preventsAdvanceAfterCompletion() throws {
@@ -138,10 +200,10 @@ struct ExecutionEngineTests {
         #expect(input.route.coordinates == originalCoordinates)
     }
 
-    private func makeExecutionInput() throws -> ExecutionInput {
+    private func makeExecutionInput(
+        cardTypes: [CardType]? = nil
+    ) throws -> ExecutionInput {
         let job = try SeededJobCatalogue.loadDefault()
-        let grid = try DeliveryGrid(board: job.board)
-        var builder = RouteBuilder()
         let path: [GridCoordinate] = [
             GridCoordinate(row: 0, column: 1),
             GridCoordinate(row: 0, column: 2),
@@ -152,6 +214,21 @@ struct ExecutionEngineTests {
             GridCoordinate(row: 3, column: 4),
             .destination,
         ]
+
+        var cells = GridCoordinate.allInRowMajorOrder.map {
+            GridCell(coordinate: $0, cardType: .clearRoad)
+        }
+        if let cardTypes {
+            precondition(cardTypes.count == path.count)
+            for (coordinate, cardType) in zip(path, cardTypes) {
+                if let index = cells.firstIndex(where: { $0.coordinate == coordinate }) {
+                    cells[index] = GridCell(coordinate: coordinate, cardType: cardType)
+                }
+            }
+        }
+        let grid = try DeliveryGrid(cells: cells)
+
+        var builder = RouteBuilder()
         for coordinate in path {
             let result = builder.select(coordinate)
             guard case .accepted = result else {
@@ -175,7 +252,7 @@ struct ExecutionEngineTests {
                 deadlineMinutes: job.deadlineMinutes,
                 economy: job.economy,
                 route: builder.route,
-                enteredCardTypes: []
+                enteredCardTypes: cardTypes ?? []
             )
         }
         return input
