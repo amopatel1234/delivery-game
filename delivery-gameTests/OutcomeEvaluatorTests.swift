@@ -124,11 +124,11 @@ struct OutcomeEvaluatorTests {
                 .clearRoad,
             ]
         )
-        // base 7 + delay 3 = 10 elapsed → after target 6, before deadline 20.
+        // base 8 + delay 3 = 11 elapsed → after target 6, before deadline 20.
         let result = ExecutionRunPreparer.prepare(input: input, seed: 2).result
         let evaluation = OutcomeEvaluator.evaluate(result)
 
-        #expect(result.elapsedMinutes == 10)
+        #expect(result.elapsedMinutes == 11)
         #expect(evaluation.status == .completed)
         #expect(evaluation.timingBand == .late)
     }
@@ -148,11 +148,11 @@ struct OutcomeEvaluatorTests {
                 .clearRoad,
             ]
         )
-        // 10 elapsed ≥ deadline 8.
+        // 11 elapsed ≥ deadline 8.
         let result = ExecutionRunPreparer.prepare(input: input, seed: 3).result
         let evaluation = OutcomeEvaluator.evaluate(result)
 
-        #expect(result.elapsedMinutes == 10)
+        #expect(result.elapsedMinutes == 11)
         #expect(evaluation.status == .failed)
         #expect(evaluation.timingBand == .missedDeadline)
     }
@@ -199,16 +199,6 @@ struct OutcomeEvaluatorTests {
         ]
         precondition(cardTypes.count == path.count)
 
-        var cells = GridCoordinate.allInRowMajorOrder.map {
-            GridCell(coordinate: $0, cardType: .clearRoad)
-        }
-        for (coordinate, cardType) in zip(path, cardTypes) {
-            if let index = cells.firstIndex(where: { $0.coordinate == coordinate }) {
-                cells[index] = GridCell(coordinate: coordinate, cardType: cardType)
-            }
-        }
-        let grid = try DeliveryGrid(cells: cells)
-
         var builder = RouteBuilder()
         for coordinate in path {
             let result = builder.select(coordinate)
@@ -218,6 +208,7 @@ struct OutcomeEvaluatorTests {
             }
         }
 
+        // Engine resolves from `enteredCardTypes`; grid placement is not required here.
         return ExecutionInput(
             jobID: job.id,
             jobDisplayName: job.displayName,
