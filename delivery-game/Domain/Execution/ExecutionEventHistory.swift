@@ -45,7 +45,7 @@ nonisolated struct ExecutionResolutionEvent: Equatable, Sendable {
 }
 
 /// Why appending to an event log was rejected.
-nonisolated enum ExecutionEventLogRejection: Equatable, Sendable {
+nonisolated enum ExecutionEventLogRejection: Error, Equatable, Sendable {
     case sealed
 }
 
