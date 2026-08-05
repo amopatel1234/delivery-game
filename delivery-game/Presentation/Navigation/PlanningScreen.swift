@@ -28,6 +28,18 @@ struct PlanningScreen: View {
         executionInput != nil
     }
 
+    /// Recap appears once playback reaches the completed phase.
+    private var completedRecap: ExecutionRecap? {
+        guard
+            executionPresentation?.phase == .completed,
+            let executionInput,
+            let sealedEventLog
+        else {
+            return nil
+        }
+        return ExecutionRecap.from(input: executionInput, eventLog: sealedEventLog)
+    }
+
     private var validation: RouteValidationResult {
         RouteValidator.validate(route: routeBuilder.route)
     }
@@ -93,6 +105,10 @@ struct PlanningScreen: View {
                                 input: executionInput,
                                 presentation: executionPresentation
                             )
+                        }
+
+                        if let recap = completedRecap {
+                            ExecutionRecapView(recap: recap)
                         }
 
                         RouteUndoButton(
