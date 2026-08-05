@@ -7,8 +7,8 @@ import Foundation
 
 /// Injected Heavy Traffic hazard outcome.
 ///
-/// Probability rolls are owned by E3-S03. This value is the decision those
-/// rolls produce; damage is only applied when a delay also occurred.
+/// Probability rolls are produced by `HazardResolver`. This value is the
+/// decision those rolls produce; damage is only applied when a delay also occurred.
 nonisolated struct HeavyTrafficHazardOutcome: Equatable, Sendable {
     let delayed: Bool
     let damaged: Bool
@@ -47,7 +47,7 @@ nonisolated enum CardResolutionResult: Equatable, Sendable {
 /// Pure card-resolution rules used during execution.
 ///
 /// Applies deterministic travel and fixed delays from `CardRules`. Probabilistic
-/// Heavy Traffic outcomes are supplied by the caller (E3-S03).
+/// Heavy Traffic outcomes are supplied by the caller (`HazardResolver`).
 nonisolated enum CardResolver {
     static func resolve(
         cardType: CardType,
