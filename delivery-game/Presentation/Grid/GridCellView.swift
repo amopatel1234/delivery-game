@@ -11,6 +11,8 @@ struct GridCellView: View {
     let cell: GridCell
     var isSelected = false
     var isEndpoint = false
+    var isPlayerPosition = false
+    var isActiveResolution = false
     var onTap: (() -> Void)?
 
     private var presentation: CardTypePresentation {
@@ -46,7 +48,17 @@ struct GridCellView: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .strokeBorder(borderColor, lineWidth: borderWidth)
             )
-            .opacity(isSelected || cell.position != .standard ? 1 : 0.92)
+            .overlay(alignment: .topTrailing) {
+                if isPlayerPosition {
+                    Image(systemName: "figure.walk")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(GridPalette.ink)
+                        .padding(4)
+                        .background(Circle().fill(GridPalette.accent))
+                        .padding(4)
+                }
+            }
+            .opacity(isSelected || cell.position != .standard || isPlayerPosition || isActiveResolution ? 1 : 0.92)
         }
         .buttonStyle(.plain)
         .disabled(onTap == nil)
@@ -90,6 +102,12 @@ struct GridCellView: View {
     }
 
     private var borderColor: Color {
+        if isActiveResolution {
+            return GridPalette.accent
+        }
+        if isPlayerPosition {
+            return GridPalette.depot
+        }
         if isEndpoint {
             return GridPalette.accent
         }
@@ -107,7 +125,7 @@ struct GridCellView: View {
     }
 
     private var borderWidth: CGFloat {
-        if isEndpoint || isSelected || cell.position != .standard {
+        if isActiveResolution || isPlayerPosition || isEndpoint || isSelected || cell.position != .standard {
             return 2
         }
         return 0
@@ -122,6 +140,12 @@ struct GridCellView: View {
             label = "Destination, \(presentation.accessibilityLabel)"
         case .standard:
             label = presentation.accessibilityLabel
+        }
+        if isActiveResolution {
+            label += ", resolving"
+        }
+        if isPlayerPosition {
+            label += ", player position"
         }
         if isEndpoint {
             label += ", route endpoint"

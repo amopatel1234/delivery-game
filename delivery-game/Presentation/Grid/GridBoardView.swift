@@ -11,6 +11,8 @@ struct GridBoardView: View {
     let grid: DeliveryGrid
     var selectedCoordinates: Set<GridCoordinate> = []
     var endpoint: GridCoordinate? = nil
+    var playerCoordinate: GridCoordinate? = nil
+    var activeCoordinate: GridCoordinate? = nil
     var onSelect: ((GridCoordinate) -> Void)? = nil
 
     private let spacing: CGFloat = 6
@@ -29,6 +31,8 @@ struct GridBoardView: View {
                                 cell: grid.cell(at: coordinate),
                                 isSelected: selectedCoordinates.contains(coordinate),
                                 isEndpoint: endpoint == coordinate,
+                                isPlayerPosition: playerCoordinate == coordinate,
+                                isActiveResolution: activeCoordinate == coordinate,
                                 onTap: {
                                     onSelect?(coordinate)
                                 }
