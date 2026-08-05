@@ -5,12 +5,20 @@
 
 import SwiftUI
 
-/// Placeholder execution surface that accepts only a confirmed route input.
-/// Full resolution belongs to Epic 3.
+/// Confirmed-route handoff surface. Hosts live execution presentation when available.
 struct ExecutionHandoffView: View {
     let input: ExecutionInput
+    var presentation: ExecutionPresentationState?
 
     var body: some View {
+        if let presentation {
+            ExecutionProgressView(presentation: presentation)
+        } else {
+            placeholder
+        }
+    }
+
+    private var placeholder: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Route confirmed")
                 .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -25,10 +33,6 @@ struct ExecutionHandoffView: View {
             )
             .font(.system(size: 13, weight: .medium))
             .foregroundStyle(GridPalette.mutedInk)
-
-            Text("Simulation starts in a later update.")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(GridPalette.ink)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)

@@ -14,6 +14,9 @@ struct PlanningScreen: View {
     @State private var routeBuilder = RouteBuilder()
     @State private var executionInput: ExecutionInput?
     @State private var lockedSummary: PlanningSummaryInput?
+    @State private var executionPresentation: ExecutionPresentationState?
+    @State private var sealedEventLog: ExecutionEventLog?
+    @State private var playbackTask: Task<Void, Never>?
     @State private var loadErrorMessage: String?
     @State private var rejectionMessage: String?
 
@@ -72,6 +75,8 @@ struct PlanningScreen: View {
                             grid: grid,
                             selectedCoordinates: Set(routeBuilder.selectedCoordinates),
                             endpoint: routeBuilder.endpoint,
+                            playerCoordinate: executionPresentation?.playerCoordinate,
+                            activeCoordinate: executionPresentation?.activeCoordinate,
                             onSelect: isEditingLocked
                                 ? nil
                                 : { coordinate in
@@ -84,7 +89,10 @@ struct PlanningScreen: View {
                         PlanningSummaryView(summary: summary)
 
                         if let executionInput {
-                            ExecutionHandoffView(input: executionInput)
+                            ExecutionHandoffView(
+                                input: executionInput,
+                                presentation: executionPresentation
+                            )
                         }
 
                         RouteUndoButton(
@@ -115,9 +123,16 @@ struct PlanningScreen: View {
         .task(id: jobID) {
             loadJob()
         }
+        .onDisappear {
+            playbackTask?.cancel()
+            playbackTask = nil
+        }
     }
 
     private var routeStatusText: String {
+        if let executionPresentation {
+            return executionPresentation.statusMessage
+        }
         if isEditingLocked {
             return "Route confirmed · editing locked"
         }
@@ -129,8 +144,11 @@ struct PlanningScreen: View {
     }
 
     private var statusColor: Color {
-        if isEditingLocked {
+        if executionPresentation?.phase == .completed {
             return GridPalette.depot
+        }
+        if isEditingLocked {
+            return GridPalette.accent
         }
         if rejectionMessage != nil {
             return GridPalette.destination
@@ -139,6 +157,8 @@ struct PlanningScreen: View {
     }
 
     private func loadJob() {
+        playbackTask?.cancel()
+        playbackTask = nil
         do {
             let loadedJob = try SeededJobCatalogue.load(id: jobID)
             job = loadedJob
@@ -146,6 +166,8 @@ struct PlanningScreen: View {
             routeBuilder = RouteBuilder()
             executionInput = nil
             lockedSummary = nil
+            executionPresentation = nil
+            sealedEventLog = nil
             rejectionMessage = nil
             loadErrorMessage = nil
         } catch {
@@ -153,6 +175,8 @@ struct PlanningScreen: View {
             grid = nil
             executionInput = nil
             lockedSummary = nil
+            executionPresentation = nil
+            sealedEventLog = nil
             loadErrorMessage = "Could not load job."
         }
     }
@@ -189,10 +213,39 @@ struct PlanningScreen: View {
             executionInput = input
             lockedSummary = summary
             rejectionMessage = nil
+            beginExecutionPlayback(input: input, seed: job.seed)
         case .rejected(.routeIncomplete):
             rejectionMessage = "Reach the Destination before confirming."
         case .rejected(.alreadyConfirmed):
             rejectionMessage = "Route already confirmed."
+        }
+    }
+
+    private func beginExecutionPlayback(input: ExecutionInput, seed: UInt64) {
+        playbackTask?.cancel()
+
+        let prepared = ExecutionRunPreparer.prepare(input: input, seed: seed)
+        sealedEventLog = prepared.eventLog
+        executionPresentation = .ready(
+            input: input,
+            eventCount: prepared.eventLog.events.count
+        )
+
+        let events = prepared.eventLog.events
+        playbackTask = Task { @MainActor in
+            guard !events.isEmpty else { return }
+            for revealed in 1 ... events.count {
+                if Task.isCancelled { return }
+                try? await Task.sleep(
+                    nanoseconds: ExecutionRunPreparer.defaultStepDelayNanoseconds
+                )
+                if Task.isCancelled { return }
+                executionPresentation = .snapshot(
+                    input: input,
+                    events: events,
+                    revealedEventCount: revealed
+                )
+            }
         }
     }
 
