@@ -53,6 +53,25 @@ nonisolated enum ExecutionHazardMode: Equatable, Sendable {
     case scripted(FixedSequenceRandomNumberGenerator)
 }
 
+/// Hazard decision plus any RNG rolls actually consumed.
+nonisolated struct HeavyTrafficHazardDecision: Equatable, Sendable {
+    let outcome: HeavyTrafficHazardOutcome
+    let delayRoll: Int?
+    let damageRoll: Int?
+
+    static func fixed(_ outcome: HeavyTrafficHazardOutcome) -> HeavyTrafficHazardDecision {
+        HeavyTrafficHazardDecision(outcome: outcome, delayRoll: nil, damageRoll: nil)
+    }
+
+    static func from(_ result: HazardResolutionResult) -> HeavyTrafficHazardDecision {
+        HeavyTrafficHazardDecision(
+            outcome: result.outcome,
+            delayRoll: result.delayRoll,
+            damageRoll: result.damageRoll
+        )
+    }
+}
+
 /// Domain engine that walks one confirmed route from start to finish.
 ///
 /// Owns execution lifecycle, sequential traversal, and card resolution via
@@ -125,14 +144,17 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
         }
 
         let cardType = cardTypes[index]
-        let hazard: HeavyTrafficHazardOutcome?
+        let hazardDecision: HeavyTrafficHazardDecision?
         if cardType == .heavyTraffic {
-            hazard = nextHeavyTrafficHazard()
+            hazardDecision = nextHeavyTrafficDecision()
         } else {
-            hazard = nil
+            hazardDecision = nil
         }
 
-        switch CardResolver.resolve(cardType: cardType, heavyTrafficHazard: hazard) {
+        switch CardResolver.resolve(
+            cardType: cardType,
+            heavyTrafficHazard: hazardDecision?.outcome
+        ) {
         case .rejected(.missingHeavyTrafficHazard):
             return .rejected(.missingHeavyTrafficHazard)
         case .resolved(let outcome):
@@ -141,7 +163,11 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
                 coordinate: coordinates[index],
                 outcome: outcome
             )
-            state.appendResolvedStep(step)
+            state.appendResolvedStep(
+                step,
+                delayRoll: hazardDecision?.delayRoll,
+                damageRoll: hazardDecision?.damageRoll
+            )
 
             if state.isComplete {
                 return .completed(state: state)
@@ -169,18 +195,18 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
         return lastResult
     }
 
-    private mutating func nextHeavyTrafficHazard() -> HeavyTrafficHazardOutcome {
+    private mutating func nextHeavyTrafficDecision() -> HeavyTrafficHazardDecision {
         switch hazardMode {
         case .fixed(let outcome):
-            return outcome
+            return .fixed(outcome)
         case .seeded(var rng):
             let result = HazardResolver.resolveHeavyTraffic(rng: &rng)
             hazardMode = .seeded(rng)
-            return result.outcome
+            return .from(result)
         case .scripted(var rng):
             let result = HazardResolver.resolveHeavyTraffic(rng: &rng)
             hazardMode = .scripted(rng)
-            return result.outcome
+            return .from(result)
         }
     }
 }
