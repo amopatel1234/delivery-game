@@ -56,6 +56,8 @@ nonisolated struct ExecutionState: Equatable, Sendable {
     /// Run-scoped damage events recorded so far.
     private(set) var damageEventCount: Int
     private(set) var resolvedSteps: [ExecutionStepRecord]
+    /// Authoritative ordered resolution events for this run.
+    private(set) var eventLog: ExecutionEventLog
 
     var isComplete: Bool {
         phase == .completed
@@ -80,21 +82,47 @@ nonisolated struct ExecutionState: Equatable, Sendable {
         self.elapsedMinutes = 0
         self.damageEventCount = 0
         self.resolvedSteps = []
+        self.eventLog = ExecutionEventLog()
     }
 
     mutating func markStarted() {
         phase = input.enteredCoordinates.isEmpty ? .completed : .running
+        if phase == .completed {
+            eventLog.seal()
+        }
     }
 
-    mutating func appendResolvedStep(_ step: ExecutionStepRecord) {
+    mutating func appendResolvedStep(
+        _ step: ExecutionStepRecord,
+        delayRoll: Int? = nil,
+        damageRoll: Int? = nil
+    ) {
         resolvedSteps.append(step)
         elapsedMinutes += step.minutesAdded
         if step.didDamage {
             damageEventCount += 1
         }
         nextEnteredIndex = step.enteredIndex + 1
+
+        let event = ExecutionResolutionEvent(
+            enteredIndex: step.enteredIndex,
+            coordinate: step.coordinate,
+            cardType: step.cardType,
+            baseTravelMinutes: step.baseTravelMinutes,
+            delayMinutesApplied: step.delayMinutesApplied,
+            didDelay: step.didDelay,
+            didDamage: step.didDamage,
+            delayRoll: delayRoll,
+            damageRoll: damageRoll,
+            elapsedMinutesAfter: elapsedMinutes,
+            cumulativeDamageEventCount: damageEventCount
+        )
+        let rejection = eventLog.record(event)
+        precondition(rejection == nil, "Event log must accept events before seal")
+
         if nextEnteredIndex >= input.enteredCoordinates.count {
             phase = .completed
+            eventLog.seal()
         }
     }
 }

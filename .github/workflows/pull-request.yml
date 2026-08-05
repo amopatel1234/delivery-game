@@ -47,6 +47,9 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
           PROJECT_FILENAME: "delivery-game.xcodeproj"
           SCHEME: "delivery-game"
+          # macos-26 runners occasionally stall on -showBuildSettings; give Fastlane more room.
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "60"
+          FASTLANE_XCODEBUILD_SETTINGS_RETRIES: "4"
         run: bundle exec fastlane runUnitTests
 
       - name: Upload test results on failure
