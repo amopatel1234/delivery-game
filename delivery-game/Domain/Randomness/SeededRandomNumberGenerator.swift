@@ -19,7 +19,7 @@ extension RandomNumberGenerating {
 }
 
 /// Deterministic seeded generator for production gameplay simulations.
-nonisolated struct SeededRandomNumberGenerator: RandomNumberGenerating, Sendable {
+nonisolated struct SeededRandomNumberGenerator: RandomNumberGenerating, Equatable, Sendable {
     /// Linear-congruential generator state.
     private var state: UInt64
 
@@ -43,13 +43,16 @@ nonisolated struct SeededRandomNumberGenerator: RandomNumberGenerating, Sendable
 }
 
 /// Test helper that returns scripted random values in order.
-nonisolated struct FixedSequenceRandomNumberGenerator: RandomNumberGenerating, Sendable {
+nonisolated struct FixedSequenceRandomNumberGenerator: RandomNumberGenerating, Equatable, Sendable {
     private var values: [Int]
-    private var index = 0
+    private(set) var index = 0
 
     init(values: [Int]) {
         self.values = values
     }
+
+    /// Number of scripted values already consumed.
+    var valuesConsumed: Int { index }
 
     mutating func nextInt(in range: ClosedRange<Int>) -> Int {
         precondition(index < values.count, "No scripted random value available at index \(index)")

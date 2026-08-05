@@ -28,7 +28,8 @@ nonisolated enum ExecutionAdvanceResult: Equatable, Sendable {
 
 /// Supplies Heavy Traffic hazard decisions during execution.
 ///
-/// E3-S03 replaces scripted providers with seeded RNG rolls.
+/// Production runs use seeded RNG via `HazardResolver`. Fixed outcomes remain
+/// available for tests that assert card resolution without rolling.
 nonisolated protocol HeavyTrafficHazardProviding: Sendable {
     mutating func nextHeavyTrafficHazard() -> HeavyTrafficHazardOutcome
 }
@@ -42,14 +43,24 @@ nonisolated struct FixedHeavyTrafficHazardProvider: HeavyTrafficHazardProviding,
     }
 }
 
+/// How Heavy Traffic hazards are decided for one execution run.
+nonisolated enum ExecutionHazardMode: Equatable, Sendable {
+    /// Scripted outcome for every Heavy Traffic card (tests).
+    case fixed(HeavyTrafficHazardOutcome)
+    /// Seeded RNG rolls via `HazardResolver` (production).
+    case seeded(SeededRandomNumberGenerator)
+    /// Scripted inclusive percentile rolls via `HazardResolver` (tests).
+    case scripted(FixedSequenceRandomNumberGenerator)
+}
+
 /// Domain engine that walks one confirmed route from start to finish.
 ///
 /// Owns execution lifecycle, sequential traversal, and card resolution via
-/// `CardResolver`. Probabilistic Heavy Traffic rolls are injected.
+/// `CardResolver`. Probabilistic Heavy Traffic rolls use injected RNG.
 nonisolated struct ExecutionEngine: Equatable, Sendable {
     private(set) var state: ExecutionState
     private var hasStarted: Bool
-    private var heavyTrafficHazardProvider: FixedHeavyTrafficHazardProvider
+    private var hazardMode: ExecutionHazardMode
 
     /// Snapshot of the immutable confirmed route this engine executes.
     var input: ExecutionInput {
@@ -62,9 +73,25 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
     ) {
         self.state = ExecutionState(input: input)
         self.hasStarted = false
-        self.heavyTrafficHazardProvider = FixedHeavyTrafficHazardProvider(
-            outcome: heavyTrafficHazard
-        )
+        self.hazardMode = .fixed(heavyTrafficHazard)
+    }
+
+    init(input: ExecutionInput, seed: UInt64) {
+        self.state = ExecutionState(input: input)
+        self.hasStarted = false
+        self.hazardMode = .seeded(SeededRandomNumberGenerator(seed: seed))
+    }
+
+    init(input: ExecutionInput, rng: SeededRandomNumberGenerator) {
+        self.state = ExecutionState(input: input)
+        self.hasStarted = false
+        self.hazardMode = .seeded(rng)
+    }
+
+    init(input: ExecutionInput, scriptedRolls: [Int]) {
+        self.state = ExecutionState(input: input)
+        self.hasStarted = false
+        self.hazardMode = .scripted(FixedSequenceRandomNumberGenerator(values: scriptedRolls))
     }
 
     /// Begins execution exactly once for this engine instance.
@@ -100,7 +127,7 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
         let cardType = cardTypes[index]
         let hazard: HeavyTrafficHazardOutcome?
         if cardType == .heavyTraffic {
-            hazard = heavyTrafficHazardProvider.nextHeavyTrafficHazard()
+            hazard = nextHeavyTrafficHazard()
         } else {
             hazard = nil
         }
@@ -140,5 +167,20 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
             }
         }
         return lastResult
+    }
+
+    private mutating func nextHeavyTrafficHazard() -> HeavyTrafficHazardOutcome {
+        switch hazardMode {
+        case .fixed(let outcome):
+            return outcome
+        case .seeded(var rng):
+            let result = HazardResolver.resolveHeavyTraffic(rng: &rng)
+            hazardMode = .seeded(rng)
+            return result.outcome
+        case .scripted(var rng):
+            let result = HazardResolver.resolveHeavyTraffic(rng: &rng)
+            hazardMode = .scripted(rng)
+            return result.outcome
+        }
     }
 }

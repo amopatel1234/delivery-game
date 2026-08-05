@@ -1,7 +1,7 @@
-E3-S02 card resolution is in (domain). Also includes the planning-summary overflow hotfix.
+E3-S03 hazard resolution is in (domain). Heavy Traffic delay/damage now roll via injected seeded RNG.
 
 What to try:
 1. Main Menu → Start Game and build any route (including Clear Road) — Planning summary should update without crashing.
 2. Reach Destination → Confirm Route locks editing; hand-off panel still appears.
-3. Execution simulation UI still comes later; card travel/delay rules now resolve in the domain engine.
-4. Heavy Traffic hazard rolls arrive in E3-S03.
+3. Execution simulation UI still comes later; domain now resolves Heavy Traffic with inclusive 1–100 rolls (damage only after delay).
+4. Same seed → same hazard outcomes; event history / presentation arrive in later E3 stories.
