@@ -1,7 +1,6 @@
-E3-S06 route recap is in. After execution playback finishes, a scrollable recap lists every entered card with move/delay/damage broken out, plus elapsed and damage totals.
+E3-S07 execution completion is in (domain). After a run finishes, ExecutionEngine.finish() emits an immutable ExecutionResult once for Epic 4 settlement.
 
 What to try:
-1. Main Menu → Start Game → build a complete route → Confirm Route.
-2. Watch execution playback, then scroll the Route recap list under the progress HUD.
-3. Confirm each card appears once with separate move/delay/damage lines; totals match the run.
-4. Completed/failed payout still comes in Epic 4 (E3-S07 hands off next).
+1. Main Menu → Start Game → complete a route → Confirm Route and watch playback + recap.
+2. Domain hand-off now includes sealed event history, elapsed time, damage, recap, and destination flag.
+3. Outcome / reward UI still comes in Epic 4 (E4-S01 next).

@@ -175,8 +175,9 @@ nonisolated struct PlanningControlLock: Equatable, Sendable {
     }
 }
 
-/// Domain-side helper that resolves a confirmed route into a sealed event log.
-/// Presentation consumes the log; it does not re-roll hazards.
+/// Domain-side helper that resolves a confirmed route into a sealed event log
+/// and an immutable Epic 4 hand-off. Presentation consumes the log; it does
+/// not re-roll hazards.
 nonisolated enum ExecutionRunPreparer {
     /// Default visual cadence between revealed cards (nanoseconds).
     static let defaultStepDelayNanoseconds: UInt64 = 450_000_000
@@ -184,20 +185,26 @@ nonisolated enum ExecutionRunPreparer {
     static func prepare(
         input: ExecutionInput,
         seed: UInt64
-    ) -> (state: ExecutionState, eventLog: ExecutionEventLog) {
+    ) -> (state: ExecutionState, eventLog: ExecutionEventLog, result: ExecutionResult) {
         var engine = ExecutionEngine(input: input, seed: seed)
         _ = engine.start()
         _ = engine.runToCompletion()
-        return (engine.state, engine.state.eventLog)
+        guard case .completed(let result) = engine.finish() else {
+            preconditionFailure("Completed run must produce an ExecutionResult")
+        }
+        return (engine.state, engine.state.eventLog, result)
     }
 
     static func prepare(
         input: ExecutionInput,
         scriptedRolls: [Int]
-    ) -> (state: ExecutionState, eventLog: ExecutionEventLog) {
+    ) -> (state: ExecutionState, eventLog: ExecutionEventLog, result: ExecutionResult) {
         var engine = ExecutionEngine(input: input, scriptedRolls: scriptedRolls)
         _ = engine.start()
         _ = engine.runToCompletion()
-        return (engine.state, engine.state.eventLog)
+        guard case .completed(let result) = engine.finish() else {
+            preconditionFailure("Completed run must produce an ExecutionResult")
+        }
+        return (engine.state, engine.state.eventLog, result)
     }
 }

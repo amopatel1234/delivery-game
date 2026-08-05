@@ -79,6 +79,7 @@ nonisolated struct HeavyTrafficHazardDecision: Equatable, Sendable {
 nonisolated struct ExecutionEngine: Equatable, Sendable {
     private(set) var state: ExecutionState
     private var hasStarted: Bool
+    private var hasEmittedResult: Bool
     private var hazardMode: ExecutionHazardMode
 
     /// Snapshot of the immutable confirmed route this engine executes.
@@ -92,24 +93,28 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
     ) {
         self.state = ExecutionState(input: input)
         self.hasStarted = false
+        self.hasEmittedResult = false
         self.hazardMode = .fixed(heavyTrafficHazard)
     }
 
     init(input: ExecutionInput, seed: UInt64) {
         self.state = ExecutionState(input: input)
         self.hasStarted = false
+        self.hasEmittedResult = false
         self.hazardMode = .seeded(SeededRandomNumberGenerator(seed: seed))
     }
 
     init(input: ExecutionInput, rng: SeededRandomNumberGenerator) {
         self.state = ExecutionState(input: input)
         self.hasStarted = false
+        self.hasEmittedResult = false
         self.hazardMode = .seeded(rng)
     }
 
     init(input: ExecutionInput, scriptedRolls: [Int]) {
         self.state = ExecutionState(input: input)
         self.hasStarted = false
+        self.hasEmittedResult = false
         self.hazardMode = .scripted(FixedSequenceRandomNumberGenerator(values: scriptedRolls))
     }
 
@@ -193,6 +198,22 @@ nonisolated struct ExecutionEngine: Equatable, Sendable {
             }
         }
         return lastResult
+    }
+
+    /// Produces the immutable Epic 4 hand-off exactly once after the run completes.
+    ///
+    /// Independent of presentation. Further `advance` / `runToCompletion` calls
+    /// remain rejected via `.alreadyCompleted`.
+    mutating func finish() -> ExecutionCompletionResult {
+        if hasEmittedResult {
+            return .rejected(.alreadyTransitioned)
+        }
+        guard state.phase == .completed else {
+            return .rejected(.notCompleted)
+        }
+
+        hasEmittedResult = true
+        return .completed(ExecutionResult.from(state: state))
     }
 
     private mutating func nextHeavyTrafficDecision() -> HeavyTrafficHazardDecision {
