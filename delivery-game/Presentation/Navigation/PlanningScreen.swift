@@ -10,6 +10,8 @@ struct PlanningScreen: View {
     let jobID: SeededJobID
     var onShowResults: ((ResultsScreenInput) -> Void)?
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var job: SeededJob?
     @State private var grid: DeliveryGrid?
     @State private var routeBuilder = RouteBuilder()
@@ -66,15 +68,18 @@ struct PlanningScreen: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         Text(job.displayName)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.title2.weight(.bold))
                             .foregroundStyle(GridPalette.ink)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityAddTraits(.isHeader)
 
                         Text(routeStatusText)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.subheadline.weight(.medium))
                             .foregroundStyle(statusColor)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .accessibilityIdentifier("route-status")
+                            .accessibilityIdentifier(GridAccessibilityID.routeStatus)
+                            .accessibilityLabel(routeStatusText)
+                            .accessibilityAddTraits(.updatesFrequently)
 
                         RouteValidationStatusView(validation: validation)
 
@@ -198,8 +203,12 @@ struct PlanningScreen: View {
         switch routeBuilder.select(coordinate) {
         case .accepted:
             rejectionMessage = nil
+            let steps = max(routeBuilder.selectedCoordinates.count - 1, 0)
+            announce(AccessibilityCopy.announceRouteStepCount(steps))
         case .rejected(let reason):
-            rejectionMessage = feedback(for: reason)
+            let message = feedback(for: reason)
+            rejectionMessage = message
+            announce(AccessibilityCopy.announceRouteRejection(message))
         }
     }
 
@@ -208,8 +217,12 @@ struct PlanningScreen: View {
         switch routeBuilder.undo() {
         case .undone:
             rejectionMessage = nil
+            let steps = max(routeBuilder.selectedCoordinates.count - 1, 0)
+            announce(AccessibilityCopy.announceRouteStepCount(steps))
         case .atDepot:
-            rejectionMessage = "Route is already back at the Depot."
+            let message = "Route is already back at the Depot."
+            rejectionMessage = message
+            announce(message)
         }
     }
 
@@ -225,11 +238,16 @@ struct PlanningScreen: View {
             executionInput = input
             lockedSummary = summary
             rejectionMessage = nil
+            announce("Route confirmed. Starting execution.")
             beginExecutionPlayback(input: input, seed: job.seed)
         case .rejected(.routeIncomplete):
-            rejectionMessage = "Reach the Destination before confirming."
+            let message = "Reach the Destination before confirming."
+            rejectionMessage = message
+            announce(AccessibilityCopy.announceRouteRejection(message))
         case .rejected(.alreadyConfirmed):
-            rejectionMessage = "Route already confirmed."
+            let message = "Route already confirmed."
+            rejectionMessage = message
+            announce(message)
         }
     }
 
@@ -246,6 +264,7 @@ struct PlanningScreen: View {
         )
 
         let events = prepared.eventLog.events
+        let preferReducedMotion = reduceMotion
         playbackTask = Task { @MainActor in
             guard !events.isEmpty else {
                 presentResultsIfNeeded()
@@ -254,14 +273,20 @@ struct PlanningScreen: View {
             for revealed in 1 ... events.count {
                 if Task.isCancelled { return }
                 try? await Task.sleep(
-                    nanoseconds: PresentationMotion.executionStepNanoseconds
+                    nanoseconds: PresentationMotion.executionStepNanoseconds(
+                        reduceMotion: preferReducedMotion
+                    )
                 )
                 if Task.isCancelled { return }
-                executionPresentation = .snapshot(
+                let snapshot = ExecutionPresentationState.snapshot(
                     input: input,
                     events: events,
                     revealedEventCount: revealed
                 )
+                executionPresentation = snapshot
+                if let consequence = snapshot.lastConsequence {
+                    announce(AccessibilityCopy.announceExecutionConsequence(consequence))
+                }
             }
             presentResultsIfNeeded()
         }
@@ -276,7 +301,18 @@ struct PlanningScreen: View {
             return
         }
         didPresentResults = true
-        onShowResults(ResultsScreenInput.from(result: executionResult))
+        let screenInput = ResultsScreenInput.from(result: executionResult)
+        announce(
+            AccessibilityCopy.announceOutcome(
+                completed: screenInput.breakdown.isCompleted,
+                reward: screenInput.breakdown.finalReward
+            )
+        )
+        onShowResults(screenInput)
+    }
+
+    private func announce(_ message: String) {
+        AccessibilityNotification.Announcement(message).post()
     }
 
     private func feedback(for reason: RouteRejectionReason) -> String {

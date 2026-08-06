@@ -102,7 +102,12 @@ struct GridCellView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(GridAccessibilityID.cell(cell.coordinate))
         .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(
+            AccessibilityCopy.cellHint(isInteractive: onTap != nil, isLocked: isEditingLocked)
+                ?? "Card on the delivery grid."
+        )
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+        .accessibilityAddTraits(onTap == nil ? [.isStaticText] : [])
     }
 
     private var markerStack: some View {

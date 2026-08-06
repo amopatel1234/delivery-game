@@ -12,19 +12,19 @@ struct PlanningSummaryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Planning summary")
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.headline.weight(.bold))
                 .foregroundStyle(GridPalette.ink)
 
             ForEach(summary.metrics) { metric in
                 HStack {
                     Text(metric.title)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(GridPalette.mutedInk)
 
                     Spacer()
 
                     Text(metric.value)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(metric.isAvailable ? GridPalette.ink : GridPalette.mutedInk)
                 }
                 .accessibilityElement(children: .ignore)

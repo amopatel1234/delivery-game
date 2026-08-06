@@ -13,7 +13,7 @@ struct RouteUndoButton: View {
     var body: some View {
         Button(action: action) {
             Label("Undo", systemImage: "arrow.uturn.backward")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(isEnabled ? GridPalette.canvas : GridPalette.mutedInk)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -24,7 +24,8 @@ struct RouteUndoButton: View {
         }
         .disabled(!isEnabled)
         .accessibilityIdentifier(GridAccessibilityID.undoButton)
-        .accessibilityLabel("Undo last route step")
+        .accessibilityLabel(AccessibilityCopy.undoLabel)
+        .accessibilityHint(isEnabled ? AccessibilityCopy.undoHint : AccessibilityCopy.undoDisabledHint)
     }
 }
 

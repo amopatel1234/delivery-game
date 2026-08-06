@@ -61,6 +61,7 @@ nonisolated enum GridAccessibilityID {
     static let mainMenu = "main-menu"
     static let startGameButton = "main-menu-start-game"
     static let resetOnboardingButton = "main-menu-reset-onboarding"
+    static let routeStatus = "route-status"
     static let onboarding = "onboarding"
     static let onboardingTitle = "onboarding-title"
     static let onboardingBody = "onboarding-body"

@@ -1,6 +1,7 @@
-E6-S02 gameplay polish is in. Cards show short codes + symbols; route/player/resolving markers are labeled (not colour-only); execution HUD has progress + consequence chips; results show STATUS COMPLETED/FAILED badges. Behaviour unchanged.
+E6-S03 accessibility support is in. VoiceOver labels/hints on key controls, Dynamic Type on chrome text, Reduce Motion skips execution step delays, contrast checks for ink/canvas, and VoiceOver announcements for route/execution/outcome.
 
 What to try:
-1. Start Game → build a route — selected cards show Route/End markers and CR/LT/HT/RW/FL codes.
-2. Confirm Route — player Here / Now markers and execution progress bar update during playback.
-3. Results — completed vs failed use icon + STATUS text, not colour alone.
+1. Enable VoiceOver — Start Game, grid cells, Undo/Confirm, Continue expose labels and hints.
+2. Enable Larger Text — menu, planning summary, and results chrome scale; grid cells stay compact.
+3. Enable Reduce Motion — Confirm Route playback advances without step delays.
+4. Invalid route taps announce the rejection reason.

@@ -180,7 +180,8 @@ struct ResultsScreenView: View {
                 )
         }
         .accessibilityIdentifier(GridAccessibilityID.resultsContinueButton)
-        .accessibilityLabel("Continue")
+        .accessibilityLabel(AccessibilityCopy.continueLabel)
+        .accessibilityHint(AccessibilityCopy.continueHint)
     }
 
     private var headingColor: Color {
