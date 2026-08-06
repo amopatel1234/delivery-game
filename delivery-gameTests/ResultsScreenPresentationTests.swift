@@ -100,7 +100,7 @@ struct ResultsScreenPresentationTests {
             jobDisplayName: "Job 1",
             breakdown: OutcomeBreakdownBuilder.build(from: settlement),
             recap: ExecutionRecap(
-                jobID: .job1,
+                jobID: SeededJobCatalogue.defaultJobID,
                 jobDisplayName: "Job 1",
                 targetTimeMinutes: target,
                 deadlineMinutes: deadline,

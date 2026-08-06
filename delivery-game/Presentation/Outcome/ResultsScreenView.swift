@@ -197,7 +197,7 @@ struct ResultsScreenView: View {
                     )
                 ),
                 recap: ExecutionRecap(
-                    jobID: .job1,
+                    jobID: SeededJobCatalogue.defaultJobID,
                     jobDisplayName: "Job 1",
                     targetTimeMinutes: 10,
                     deadlineMinutes: 16,
