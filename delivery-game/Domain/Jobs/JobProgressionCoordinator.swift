@@ -41,7 +41,7 @@ nonisolated enum JobProgressionStep: Equatable, Sendable {
 }
 
 /// Why a progression action was rejected.
-nonisolated enum JobProgressionRejection: Equatable, Sendable {
+nonisolated enum JobProgressionRejection: Error, Equatable, Sendable {
     case replayLocked
     case notInReplaySelection
     case unknownJob
