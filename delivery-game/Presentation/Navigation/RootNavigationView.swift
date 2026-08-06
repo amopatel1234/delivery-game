@@ -5,18 +5,31 @@
 
 import SwiftUI
 
-/// App shell: Main Menu → sequential jobs → results → progression / replay selection.
+/// App shell: Main Menu → onboarding (first run) → sequential jobs → results → replay.
 struct RootNavigationView: View {
     @State private var path = NavigationPath()
     @State private var progressionState = JobProgressionState.initial
+    @State private var onboardingStore: OnboardingPersisting
+
+    init(onboardingStore: OnboardingPersisting = UserDefaultsOnboardingStore()) {
+        _onboardingStore = State(initialValue: onboardingStore)
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
-            MainMenuView {
-                startNewSession()
-            }
+            MainMenuView(
+                onStartGame: handleStartGame,
+                showsResetOnboarding: Self.allowsOnboardingReset,
+                onResetOnboarding: {
+                    OnboardingCoordinator.reset(store: onboardingStore)
+                }
+            )
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
+                case .onboarding:
+                    OnboardingView {
+                        finishOnboardingAndStartSession()
+                    }
                 case .planning(let jobID):
                     PlanningScreen(jobID: jobID) { input in
                         path.append(AppRoute.results(input))
@@ -33,6 +46,28 @@ struct RootNavigationView: View {
             }
         }
         .tint(GridPalette.accent)
+    }
+
+    /// Development and test builds may reset onboarding; Release builds hide the control.
+    static var allowsOnboardingReset: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
+    private func handleStartGame() {
+        if OnboardingCoordinator.shouldPresentOnboarding(store: onboardingStore) {
+            path = NavigationPath([AppRoute.onboarding])
+        } else {
+            startNewSession()
+        }
+    }
+
+    private func finishOnboardingAndStartSession() {
+        OnboardingCoordinator.markCompleted(store: onboardingStore)
+        startNewSession()
     }
 
     private func startNewSession() {
@@ -76,5 +111,5 @@ struct RootNavigationView: View {
 }
 
 #Preview {
-    RootNavigationView()
+    RootNavigationView(onboardingStore: InMemoryOnboardingStore())
 }

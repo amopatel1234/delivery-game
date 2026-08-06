@@ -8,6 +8,8 @@ import SwiftUI
 /// Prototype main menu. Independent of the grid; only emits a start action.
 struct MainMenuView: View {
     let onStartGame: () -> Void
+    var showsResetOnboarding: Bool = false
+    var onResetOnboarding: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 28) {
@@ -37,6 +39,14 @@ struct MainMenuView: View {
                     )
             }
             .accessibilityIdentifier(GridAccessibilityID.startGameButton)
+
+            if showsResetOnboarding, let onResetOnboarding {
+                Button("Reset Onboarding", action: onResetOnboarding)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(GridPalette.mutedInk)
+                    .accessibilityIdentifier(GridAccessibilityID.resetOnboardingButton)
+                    .accessibilityLabel("Reset onboarding")
+            }
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -46,5 +56,5 @@ struct MainMenuView: View {
 }
 
 #Preview {
-    MainMenuView(onStartGame: {})
+    MainMenuView(onStartGame: {}, showsResetOnboarding: true, onResetOnboarding: {})
 }
