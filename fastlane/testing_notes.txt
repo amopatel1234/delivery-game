@@ -1,6 +1,6 @@
-E4-S02 reward settlement is in (domain). Completed runs settle base/early/late/damage via shared EconomyConfiguration; failed runs always pay 0.
+E4-S03 outcome breakdown is in (domain). Settlement maps to an immutable itemised breakdown (base, early, late, damage, final + timing summary).
 
 What to try:
 1. Main Menu → Start Game → complete a route → Confirm Route; playback + recap still work.
-2. Domain now settles final reward from ExecutionResult (no UI yet).
-3. Outcome breakdown / results screen arrive in E4-S03 / E4-S04.
+2. Domain now exposes OutcomeBreakdown from ExecutionResult (no UI yet).
+3. Results screen with breakdown presentation arrives in E4-S04.
