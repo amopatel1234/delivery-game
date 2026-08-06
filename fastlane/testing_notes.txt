@@ -1,7 +1,6 @@
-E4-S04 results screen is in. After execution playback, a Results screen shows completed/failed heading, reward, timing comparison, payout breakdown, route recap, and Continue back to the main menu.
+E4-S05 job progression coordinator is in (domain). Sequential Jobs 1–5, replay unlock after Job 5, and run-reset signalling — wiring into Continue/navigation arrives in E4-S06.
 
 What to try:
-1. Main Menu → Start Game → build a route → Confirm Route → watch playback finish.
-2. Results screen should appear with reward, timing, breakdown, and route recap.
-3. Tap Continue to return to the main menu.
-4. Try an early finish (reward > 0) and a late/failed run to see distinct headings.
+1. Main Menu → Start Game → complete a route → Results still works as before.
+2. Continue still returns to the main menu until E4-S06 integrates progression.
+3. Domain tests cover sequential order, replay unlock, and run reset.

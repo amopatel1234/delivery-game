@@ -12,6 +12,7 @@ struct SeededJobCatalogueTests {
         let ids = SeededJobCatalogue.definitions.map(\.id)
         #expect(ids == SeededJobID.allCases)
         #expect(Set(ids).count == 5)
+        #expect(SeededJobCatalogue.sequentialOrder == ids)
 
         let names = SeededJobCatalogue.definitions.map(\.displayName)
         #expect(names == [
