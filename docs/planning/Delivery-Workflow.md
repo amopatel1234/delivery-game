@@ -177,7 +177,7 @@ Bundle ID: `com.amishpatel.couriesgambit.game`
 
 Update `fastlane/testing_notes.txt` before merges that should ship a meaningful What to Test note.
 
-After upload, Fastlane waits for processing and sets the What to Test changelog. It does **not** assign TestFlight groups via the API (ASC rejects assigning the **`Internal`** group). Enable **Automatic distribution** on **`Internal`** in App Store Connect so new builds reach testers.
+After upload, Fastlane waits for processing, sets the What to Test changelog, and assigns the build to the **`External`** TestFlight group. It does **not** assign the **`Internal`** group via the API (ASC rejects that). Enable **Automatic distribution** on **`Internal`** in App Store Connect so internal testers still receive builds.
 
 ### Testing policy
 
