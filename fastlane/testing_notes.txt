@@ -1,7 +1,6 @@
-E4-S06 outcome integration is in. Full loop: Start Game → Jobs 1–5 → Results → next job; after Job 5, replay picker → chosen job → Results → picker again.
+E6-S01 first-time onboarding is in. First Start Game shows a skippable How to Play flow (route, timing, risk, reward); completion persists. DEBUG builds can Reset Onboarding from the main menu.
 
 What to try:
-1. Main Menu → Start Game → complete Job 1 → Continue should open Job 2 (not main menu).
-2. Play through Jobs 1–5; after Job 5 Continue opens the replay job picker.
-3. Pick any job, complete it, Continue returns to the picker.
-4. Start Game from the main menu resets to Job 1.
+1. Fresh install / Reset Onboarding → Start Game → walk through pages or Skip → Job 1.
+2. Quit and relaunch → Start Game should skip onboarding and go straight to Job 1.
+3. DEBUG only: Reset Onboarding on the main menu, then Start Game again to re-see guidance.
