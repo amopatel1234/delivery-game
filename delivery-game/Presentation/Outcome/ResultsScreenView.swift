@@ -37,11 +37,29 @@ struct ResultsScreenView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(presentation.heading)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(headingColor)
-                .accessibilityIdentifier(GridAccessibilityID.resultsHeading)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: presentation.headingTone == .completed ? "checkmark.seal.fill" : "xmark.octagon.fill")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(headingColor)
+                Text(presentation.heading)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(headingColor)
+                    .accessibilityIdentifier(GridAccessibilityID.resultsHeading)
+            }
+
+            Text(presentation.headingTone == .completed ? "STATUS: COMPLETED" : "STATUS: FAILED")
+                .font(.system(size: 11, weight: .heavy, design: .rounded))
+                .foregroundStyle(GridPalette.canvas)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(headingColor)
+                )
+                .accessibilityLabel(
+                    presentation.headingTone == .completed ? "Status completed" : "Status failed"
+                )
 
             Text(presentation.jobDisplayName)
                 .font(.system(size: 15, weight: .semibold))

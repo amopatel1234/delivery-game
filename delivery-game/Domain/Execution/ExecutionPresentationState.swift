@@ -180,6 +180,7 @@ nonisolated struct PlanningControlLock: Equatable, Sendable {
 /// not re-roll hazards.
 nonisolated enum ExecutionRunPreparer {
     /// Default visual cadence between revealed cards (nanoseconds).
+    /// Presentation should prefer `PresentationMotion.executionStepNanoseconds`.
     static let defaultStepDelayNanoseconds: UInt64 = 450_000_000
 
     static func prepare(

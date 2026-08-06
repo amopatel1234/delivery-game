@@ -13,33 +13,63 @@ struct GridCellView: View {
     var isEndpoint = false
     var isPlayerPosition = false
     var isActiveResolution = false
+    var isEditingLocked = false
     var onTap: (() -> Void)?
 
     private var presentation: CardTypePresentation {
         CardTypePresentation.forType(cell.cardType)
     }
 
+    private var visualState: GridCellVisualState {
+        GridCellVisualState.make(
+            position: cell.position,
+            cardType: cell.cardType,
+            isSelected: isSelected,
+            isEndpoint: isEndpoint,
+            isPlayerPosition: isPlayerPosition,
+            isActiveResolution: isActiveResolution,
+            isEditingLocked: isEditingLocked
+        )
+    }
+
     var body: some View {
         Button {
             onTap?()
         } label: {
-            VStack(spacing: 4) {
-                Image(systemName: roleSymbolName)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(roleTint)
+            ZStack(alignment: .topLeading) {
+                VStack(spacing: 3) {
+                    Image(systemName: roleSymbolName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(roleTint)
 
-                Image(systemName: presentation.symbolName)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(GridPalette.ink)
+                    Image(systemName: presentation.symbolName)
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(GridPalette.ink)
+                        .symbolRenderingMode(.hierarchical)
 
-                Text(shortLabel)
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(GridPalette.ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    Text(visualState.roleTitle)
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(GridPalette.ink)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+
+                    Text(visualState.cardCode)
+                        .font(.system(size: 8, weight: .heavy, design: .rounded))
+                        .foregroundStyle(GridPalette.ink.opacity(0.85))
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule(style: .continuous)
+                                .strokeBorder(GridPalette.ink.opacity(0.55), lineWidth: 1)
+                        )
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(5)
+
+                if !visualState.markerLabels.filter({ $0 == "Route" || $0 == "End" || $0 == "Here" || $0 == "Now" }).isEmpty {
+                    markerStack
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(6)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(GridPalette.fill(for: cell.cardType))
@@ -47,18 +77,25 @@ struct GridCellView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .strokeBorder(borderColor, lineWidth: borderWidth)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(
+                                isActiveResolution ? GridPalette.ink.opacity(0.45) : .clear,
+                                style: StrokeStyle(lineWidth: 1, dash: [3, 2])
+                            )
+                    )
             )
-            .overlay(alignment: .topTrailing) {
+            .overlay(alignment: .bottomTrailing) {
                 if isPlayerPosition {
                     Image(systemName: "figure.walk")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(GridPalette.ink)
-                        .padding(4)
-                        .background(Circle().fill(GridPalette.accent))
-                        .padding(4)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(GridPalette.canvas)
+                        .padding(3)
+                        .background(Circle().strokeBorder(GridPalette.ink, lineWidth: 1).background(Circle().fill(GridPalette.accent)))
+                        .padding(3)
                 }
             }
-            .opacity(isSelected || cell.position != .standard || isPlayerPosition || isActiveResolution ? 1 : 0.92)
+            .opacity(visualState.isDimmed ? 0.55 : 1)
         }
         .buttonStyle(.plain)
         .disabled(onTap == nil)
@@ -68,14 +105,33 @@ struct GridCellView: View {
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 
-    private var shortLabel: String {
-        switch cell.position {
-        case .depot:
-            "Depot"
-        case .destination:
-            "Dest"
-        case .standard:
-            presentation.title
+    private var markerStack: some View {
+        HStack(spacing: 2) {
+            ForEach(visualState.markerLabels.filter { ["Route", "End", "Here", "Now"].contains($0) }, id: \.self) { label in
+                Text(label)
+                    .font(.system(size: 7, weight: .heavy))
+                    .foregroundStyle(GridPalette.canvas)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 1)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(markerFill(for: label))
+                    )
+            }
+        }
+        .padding(3)
+    }
+
+    private func markerFill(for label: String) -> Color {
+        switch label {
+        case "Now":
+            GridPalette.accent
+        case "Here":
+            GridPalette.depot
+        case "End":
+            GridPalette.accent
+        default:
+            GridPalette.ink.opacity(0.75)
         }
     }
 
@@ -112,7 +168,7 @@ struct GridCellView: View {
             return GridPalette.accent
         }
         if isSelected {
-            return GridPalette.ink.opacity(0.85)
+            return GridPalette.ink.opacity(0.9)
         }
         switch cell.position {
         case .depot:
@@ -120,15 +176,15 @@ struct GridCellView: View {
         case .destination:
             return GridPalette.destination
         case .standard:
-            return .clear
+            return GridPalette.ink.opacity(0.12)
         }
     }
 
     private var borderWidth: CGFloat {
         if isActiveResolution || isPlayerPosition || isEndpoint || isSelected || cell.position != .standard {
-            return 2
+            return 2.5
         }
-        return 0
+        return 1
     }
 
     private var accessibilityLabel: String {
@@ -141,6 +197,7 @@ struct GridCellView: View {
         case .standard:
             label = presentation.accessibilityLabel
         }
+        label += ", code \(visualState.cardCode)"
         if isActiveResolution {
             label += ", resolving"
         }
@@ -151,6 +208,9 @@ struct GridCellView: View {
             label += ", route endpoint"
         } else if isSelected {
             label += ", on route"
+        }
+        if isEditingLocked {
+            label += ", locked"
         }
         return label
     }

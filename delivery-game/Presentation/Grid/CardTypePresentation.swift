@@ -10,6 +10,8 @@ import Foundation
 nonisolated struct CardTypePresentation: Equatable, Sendable {
     let symbolName: String
     let title: String
+    /// Compact non-colour code shown on grid cells.
+    let shortCode: String
     let accessibilityLabel: String
 
     static func forType(_ type: CardType) -> CardTypePresentation {
@@ -18,30 +20,35 @@ nonisolated struct CardTypePresentation: Equatable, Sendable {
             CardTypePresentation(
                 symbolName: "road.lanes",
                 title: "Clear Road",
+                shortCode: "CR",
                 accessibilityLabel: "Clear Road"
             )
         case .lightTraffic:
             CardTypePresentation(
                 symbolName: "car.fill",
                 title: "Light Traffic",
+                shortCode: "LT",
                 accessibilityLabel: "Light Traffic"
             )
         case .heavyTraffic:
             CardTypePresentation(
                 symbolName: "truck.box.fill",
                 title: "Heavy Traffic",
+                shortCode: "HT",
                 accessibilityLabel: "Heavy Traffic"
             )
         case .roadworks:
             CardTypePresentation(
                 symbolName: "cone.fill",
                 title: "Roadworks",
+                shortCode: "RW",
                 accessibilityLabel: "Roadworks"
             )
         case .fastLane:
             CardTypePresentation(
                 symbolName: "bolt.fill",
                 title: "Fast Lane",
+                shortCode: "FL",
                 accessibilityLabel: "Fast Lane"
             )
         }
