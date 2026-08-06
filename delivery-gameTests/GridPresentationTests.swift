@@ -13,6 +13,7 @@ struct GridPresentationTests {
             let presentation = CardTypePresentation.forType(type)
             #expect(!presentation.symbolName.isEmpty)
             #expect(!presentation.title.isEmpty)
+            #expect(!presentation.shortCode.isEmpty)
             #expect(!presentation.accessibilityLabel.isEmpty)
         }
     }
@@ -20,6 +21,8 @@ struct GridPresentationTests {
     @Test func cardTypeSymbolsAreDistinct() {
         let symbols = Set(CardType.allCases.map { CardTypePresentation.forType($0).symbolName })
         #expect(symbols.count == CardType.allCases.count)
+        let codes = Set(CardType.allCases.map { CardTypePresentation.forType($0).shortCode })
+        #expect(codes.count == CardType.allCases.count)
     }
 
     @Test func accessibilityIdentifiersCoverBoardAndFixedPositions() {

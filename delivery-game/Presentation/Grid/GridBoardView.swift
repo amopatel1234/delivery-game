@@ -13,6 +13,7 @@ struct GridBoardView: View {
     var endpoint: GridCoordinate? = nil
     var playerCoordinate: GridCoordinate? = nil
     var activeCoordinate: GridCoordinate? = nil
+    var isEditingLocked: Bool = false
     var onSelect: ((GridCoordinate) -> Void)? = nil
 
     private let spacing: CGFloat = 6
@@ -33,6 +34,7 @@ struct GridBoardView: View {
                                 isEndpoint: endpoint == coordinate,
                                 isPlayerPosition: playerCoordinate == coordinate,
                                 isActiveResolution: activeCoordinate == coordinate,
+                                isEditingLocked: isEditingLocked,
                                 onTap: {
                                     onSelect?(coordinate)
                                 }
@@ -42,6 +44,11 @@ struct GridBoardView: View {
                     }
                 }
             }
+            .padding(8)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(GridPalette.panel.opacity(0.65))
+            )
             .frame(width: side, height: side, alignment: .center)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -49,8 +56,10 @@ struct GridBoardView: View {
     }
 
     private func availableCellSide(in boardSide: CGFloat) -> CGFloat {
+        let inset: CGFloat = 16
+        let usable = max(boardSide - inset, 1)
         let totalSpacing = spacing * CGFloat(DeliveryGrid.size - 1)
-        return max((boardSide - totalSpacing) / CGFloat(DeliveryGrid.size), 1)
+        return max((usable - totalSpacing) / CGFloat(DeliveryGrid.size), 1)
     }
 }
 

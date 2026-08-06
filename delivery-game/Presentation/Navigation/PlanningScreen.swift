@@ -84,6 +84,7 @@ struct PlanningScreen: View {
                             endpoint: routeBuilder.endpoint,
                             playerCoordinate: executionPresentation?.playerCoordinate,
                             activeCoordinate: executionPresentation?.activeCoordinate,
+                            isEditingLocked: isEditingLocked,
                             onSelect: isEditingLocked
                                 ? nil
                                 : { coordinate in
@@ -253,7 +254,7 @@ struct PlanningScreen: View {
             for revealed in 1 ... events.count {
                 if Task.isCancelled { return }
                 try? await Task.sleep(
-                    nanoseconds: ExecutionRunPreparer.defaultStepDelayNanoseconds
+                    nanoseconds: PresentationMotion.executionStepNanoseconds
                 )
                 if Task.isCancelled { return }
                 executionPresentation = .snapshot(
