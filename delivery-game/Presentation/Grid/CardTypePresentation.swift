@@ -73,6 +73,7 @@ nonisolated enum GridAccessibilityID {
     static let resultsTiming = "results-timing"
     static let resultsBreakdown = "results-breakdown"
     static let resultsContinueButton = "results-continue-button"
+    static let jobSelection = "job-selection"
 
     static func executionRecapEntry(_ index: Int) -> String {
         "execution-recap-entry-\(index)"
@@ -84,6 +85,10 @@ nonisolated enum GridAccessibilityID {
 
     static func resultsBreakdownRow(_ id: String) -> String {
         "results-breakdown-\(id)"
+    }
+
+    static func jobSelectionOption(_ jobID: SeededJobID) -> String {
+        "job-selection-\(jobID.rawValue)"
     }
 
     static func planningMetric(_ id: String) -> String {
