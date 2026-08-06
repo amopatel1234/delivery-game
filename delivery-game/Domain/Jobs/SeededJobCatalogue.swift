@@ -89,6 +89,9 @@ nonisolated enum SeededJobCatalogue {
         ),
     ]
 
+    /// Canonical Job 1 → Job 5 order for MVP progression.
+    static let sequentialOrder: [SeededJobID] = definitions.map(\.id)
+
     static func definition(for id: SeededJobID) -> SeededJobDefinition {
         guard let definition = definitions.first(where: { $0.id == id }) else {
             preconditionFailure("Missing authored definition for \(id.rawValue)")
