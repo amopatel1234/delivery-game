@@ -1,6 +1,7 @@
-E4-S03 outcome breakdown is in (domain). Settlement maps to an immutable itemised breakdown (base, early, late, damage, final + timing summary).
+E4-S04 results screen is in. After execution playback, a Results screen shows completed/failed heading, reward, timing comparison, payout breakdown, route recap, and Continue back to the main menu.
 
 What to try:
-1. Main Menu → Start Game → complete a route → Confirm Route; playback + recap still work.
-2. Domain now exposes OutcomeBreakdown from ExecutionResult (no UI yet).
-3. Results screen with breakdown presentation arrives in E4-S04.
+1. Main Menu → Start Game → build a route → Confirm Route → watch playback finish.
+2. Results screen should appear with reward, timing, breakdown, and route recap.
+3. Tap Continue to return to the main menu.
+4. Try an early finish (reward > 0) and a late/failed run to see distinct headings.

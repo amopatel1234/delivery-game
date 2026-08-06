@@ -9,7 +9,7 @@ import Foundation
 ///
 /// Movement time, delay and damage are kept separate so presentation and
 /// Epic 4 settlement can reuse the same values.
-nonisolated struct ExecutionRecapEntry: Equatable, Sendable, Identifiable {
+nonisolated struct ExecutionRecapEntry: Equatable, Sendable, Hashable, Identifiable {
     /// Matches `ExecutionResolutionEvent.enteredIndex`.
     let enteredIndex: Int
     let coordinate: GridCoordinate
@@ -46,7 +46,7 @@ nonisolated struct ExecutionRecapEntry: Equatable, Sendable, Identifiable {
 ///
 /// Built only from confirmed input + sealed event history. Does not decide
 /// completed/failed payout status (Epic 4).
-nonisolated struct ExecutionRecap: Equatable, Sendable {
+nonisolated struct ExecutionRecap: Equatable, Sendable, Hashable {
     let jobID: SeededJobID
     let jobDisplayName: String
     let targetTimeMinutes: Int

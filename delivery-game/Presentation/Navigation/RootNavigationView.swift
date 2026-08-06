@@ -17,7 +17,13 @@ struct RootNavigationView: View {
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
                 case .planning:
-                    PlanningScreen()
+                    PlanningScreen { input in
+                        path.append(AppRoute.results(input))
+                    }
+                case .results(let input):
+                    ResultsScreenView(input: input) {
+                        path = NavigationPath()
+                    }
                 }
             }
         }

@@ -8,6 +8,7 @@ import SwiftUI
 /// Integrated planning experience: grid, route editing, validation, summary and confirm state.
 struct PlanningScreen: View {
     let jobID: SeededJobID
+    var onShowResults: ((ResultsScreenInput) -> Void)?
 
     @State private var job: SeededJob?
     @State private var grid: DeliveryGrid?
@@ -16,28 +17,22 @@ struct PlanningScreen: View {
     @State private var lockedSummary: PlanningSummaryInput?
     @State private var executionPresentation: ExecutionPresentationState?
     @State private var sealedEventLog: ExecutionEventLog?
+    @State private var executionResult: ExecutionResult?
+    @State private var didPresentResults = false
     @State private var playbackTask: Task<Void, Never>?
     @State private var loadErrorMessage: String?
     @State private var rejectionMessage: String?
 
-    init(jobID: SeededJobID = SeededJobCatalogue.defaultJobID) {
+    init(
+        jobID: SeededJobID = SeededJobCatalogue.defaultJobID,
+        onShowResults: ((ResultsScreenInput) -> Void)? = nil
+    ) {
         self.jobID = jobID
+        self.onShowResults = onShowResults
     }
 
     private var isEditingLocked: Bool {
         executionInput != nil
-    }
-
-    /// Recap appears once playback reaches the completed phase.
-    private var completedRecap: ExecutionRecap? {
-        guard
-            executionPresentation?.phase == .completed,
-            let executionInput,
-            let sealedEventLog
-        else {
-            return nil
-        }
-        return ExecutionRecap.from(input: executionInput, eventLog: sealedEventLog)
     }
 
     private var validation: RouteValidationResult {
@@ -105,10 +100,6 @@ struct PlanningScreen: View {
                                 input: executionInput,
                                 presentation: executionPresentation
                             )
-                        }
-
-                        if let recap = completedRecap {
-                            ExecutionRecapView(recap: recap)
                         }
 
                         RouteUndoButton(
@@ -184,6 +175,8 @@ struct PlanningScreen: View {
             lockedSummary = nil
             executionPresentation = nil
             sealedEventLog = nil
+            executionResult = nil
+            didPresentResults = false
             rejectionMessage = nil
             loadErrorMessage = nil
         } catch {
@@ -193,6 +186,8 @@ struct PlanningScreen: View {
             lockedSummary = nil
             executionPresentation = nil
             sealedEventLog = nil
+            executionResult = nil
+            didPresentResults = false
             loadErrorMessage = "Could not load job."
         }
     }
@@ -239,9 +234,11 @@ struct PlanningScreen: View {
 
     private func beginExecutionPlayback(input: ExecutionInput, seed: UInt64) {
         playbackTask?.cancel()
+        didPresentResults = false
 
         let prepared = ExecutionRunPreparer.prepare(input: input, seed: seed)
         sealedEventLog = prepared.eventLog
+        executionResult = prepared.result
         executionPresentation = .ready(
             input: input,
             eventCount: prepared.eventLog.events.count
@@ -249,7 +246,10 @@ struct PlanningScreen: View {
 
         let events = prepared.eventLog.events
         playbackTask = Task { @MainActor in
-            guard !events.isEmpty else { return }
+            guard !events.isEmpty else {
+                presentResultsIfNeeded()
+                return
+            }
             for revealed in 1 ... events.count {
                 if Task.isCancelled { return }
                 try? await Task.sleep(
@@ -262,7 +262,20 @@ struct PlanningScreen: View {
                     revealedEventCount: revealed
                 )
             }
+            presentResultsIfNeeded()
         }
+    }
+
+    private func presentResultsIfNeeded() {
+        guard
+            !didPresentResults,
+            let executionResult,
+            let onShowResults
+        else {
+            return
+        }
+        didPresentResults = true
+        onShowResults(ResultsScreenInput.from(result: executionResult))
     }
 
     private func feedback(for reason: RouteRejectionReason) -> String {
