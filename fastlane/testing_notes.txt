@@ -1,6 +1,6 @@
-E4-S01 outcome evaluation is in (domain). Target Time / Deadline boundaries now mark a run completed or failed without calculating rewards.
+E4-S02 reward settlement is in (domain). Completed runs settle base/early/late/damage via shared EconomyConfiguration; failed runs always pay 0.
 
 What to try:
 1. Main Menu → Start Game → complete a route → Confirm Route; playback + recap still work.
-2. Outcome status is evaluated in domain from ExecutionResult (early / on-target / late / missed deadline).
-3. Reward settlement UI still comes in E4-S02+.
+2. Domain now settles final reward from ExecutionResult (no UI yet).
+3. Outcome breakdown / results screen arrive in E4-S03 / E4-S04.
