@@ -6,7 +6,7 @@
 import Foundation
 
 /// Identifies a single reward line in an outcome breakdown.
-nonisolated enum OutcomeBreakdownLineKind: String, Equatable, Sendable, CaseIterable {
+nonisolated enum OutcomeBreakdownLineKind: String, Equatable, Sendable, Hashable, CaseIterable {
     case baseReward
     case earlyBonus
     case latenessPenalty
@@ -17,7 +17,7 @@ nonisolated enum OutcomeBreakdownLineKind: String, Equatable, Sendable, CaseIter
 /// One presentation-neutral reward row derived from settlement.
 ///
 /// Amounts are always non-negative magnitudes; `isDeduction` marks penalties.
-nonisolated struct OutcomeBreakdownLineItem: Equatable, Sendable {
+nonisolated struct OutcomeBreakdownLineItem: Equatable, Sendable, Hashable {
     let kind: OutcomeBreakdownLineKind
     let amount: Int
     let isDeduction: Bool
@@ -28,7 +28,7 @@ nonisolated struct OutcomeBreakdownLineItem: Equatable, Sendable {
 /// Immutable, presentation-neutral explanation of how final reward was calculated.
 ///
 /// Maps one-to-one from `RewardSettlement` without recalculating components.
-nonisolated struct OutcomeBreakdown: Equatable, Sendable {
+nonisolated struct OutcomeBreakdown: Equatable, Sendable, Hashable {
     let status: DeliveryOutcomeStatus
     let timingBand: DeliveryTimingBand
     let elapsedMinutes: Int

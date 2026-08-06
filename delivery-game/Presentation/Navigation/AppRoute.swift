@@ -8,4 +8,5 @@ import Foundation
 /// Lightweight navigation destinations for the prototype shell.
 enum AppRoute: Hashable {
     case planning
+    case results(ResultsScreenInput)
 }

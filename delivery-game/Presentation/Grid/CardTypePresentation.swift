@@ -67,9 +67,23 @@ nonisolated enum GridAccessibilityID {
     static let executionRecap = "execution-recap"
     static let executionRecapSummary = "execution-recap-summary"
     static let executionRecapList = "execution-recap-list"
+    static let resultsScreen = "results-screen"
+    static let resultsHeading = "results-heading"
+    static let resultsReward = "results-reward"
+    static let resultsTiming = "results-timing"
+    static let resultsBreakdown = "results-breakdown"
+    static let resultsContinueButton = "results-continue-button"
 
     static func executionRecapEntry(_ index: Int) -> String {
         "execution-recap-entry-\(index)"
+    }
+
+    static func resultsTimingRow(_ id: String) -> String {
+        "results-timing-\(id)"
+    }
+
+    static func resultsBreakdownRow(_ id: String) -> String {
+        "results-breakdown-\(id)"
     }
 
     static func planningMetric(_ id: String) -> String {
