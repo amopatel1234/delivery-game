@@ -117,15 +117,21 @@ struct ResultsScreenView: View {
                 HStack {
                     Text(row.title)
                         .font(
-                            system(size: row.isEmphasized ? 15 : 14, weight: row.isEmphasized ? .bold : .medium),
-                            design: .rounded
+                            .system(
+                                size: row.isEmphasized ? 15 : 14,
+                                weight: row.isEmphasized ? .bold : .medium,
+                                design: .rounded
+                            )
                         )
                         .foregroundStyle(row.isEmphasized ? GridPalette.ink : GridPalette.mutedInk)
                     Spacer()
                     Text(row.value)
                         .font(
-                            system(size: row.isEmphasized ? 16 : 14, weight: .semibold),
-                            design: .rounded
+                            .system(
+                                size: row.isEmphasized ? 16 : 14,
+                                weight: .semibold,
+                                design: .rounded
+                            )
                         )
                         .foregroundStyle(breakdownValueColor(for: row))
                 }
