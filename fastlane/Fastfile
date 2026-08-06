@@ -145,6 +145,7 @@ platform :ios do
         # External groups can be assigned via the API after processing completes.
         distribute_external: true,
         groups: [TESTFLIGHT_EXTERNAL_GROUP],
+        notify_external_testers: true,
         # Do not pass the Internal group here — ASC rejects API assignment to internal
         # groups ("Cannot add internal group to a build"). Enable Automatic distribution
         # on Internal in App Store Connect so internal testers still receive builds.

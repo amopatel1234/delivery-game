@@ -177,7 +177,15 @@ Bundle ID: `com.amishpatel.couriesgambit.game`
 
 Update `fastlane/testing_notes.txt` before merges that should ship a meaningful What to Test note.
 
-After upload, Fastlane waits for processing, sets the What to Test changelog, and assigns the build to the **`External`** TestFlight group. It does **not** assign the **`Internal`** group via the API (ASC rejects that). Enable **Automatic distribution** on **`Internal`** in App Store Connect so internal testers still receive builds.
+After upload, Fastlane waits for processing, sets the What to Test changelog, assigns the build to the **`External`** TestFlight group, and notifies external testers. It does **not** assign the **`Internal`** group via the API (ASC rejects that). Enable **Automatic distribution** on **`Internal`** in App Store Connect so internal testers still receive builds.
+
+Release checklist, tester instructions, and known limitations: [`docs/planning/validation/TestFlight-Release.md`](validation/TestFlight-Release.md) and [`TestFlight-Tester-Instructions.md`](validation/TestFlight-Tester-Instructions.md).
+
+Validate artefacts locally:
+
+```bash
+python3 scripts/validate_testflight_release.py
+```
 
 ### Testing policy
 

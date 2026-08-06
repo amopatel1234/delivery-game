@@ -1,6 +1,7 @@
-E6-S04 MVP validation is in. Seeded-job route diversity + catalogue sign-off tests lock accepted seeds/timings; see docs/planning/validation/Seeded-Job-Validation.md.
+Couriers Gambit MVP 1.0 — external TestFlight. Play Jobs 1–5 (route plan → confirm → results → continue), then replay any job after Job 5. Focus: is route planning fun? See docs/planning/validation/TestFlight-Tester-Instructions.md.
 
 What to try:
-1. Play Jobs 1–5 and confirm each still has meaningful route choices.
-2. After Job 5, use replay to compare an alternate route on Direct but Risky / Fast Lane Temptation.
-3. CI: SeededJobValidationTests must stay green before external TestFlight (E6-S05).
+1. Start Game → How to Play (or Skip) → complete Job 1 with Confirm Route + Results.
+2. Continue through Jobs 2–5; note Target Time vs Deadline and risk trade-offs.
+3. After Job 5, pick a replay job and try a different route.
+4. Optional: VoiceOver / Larger Text / Reduce Motion smoke checks.
