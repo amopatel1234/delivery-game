@@ -38,7 +38,8 @@ struct OnboardingView: View {
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(GridPalette.mutedInk)
                 .accessibilityIdentifier(GridAccessibilityID.onboardingSkipButton)
-                .accessibilityLabel("Skip onboarding")
+                .accessibilityLabel(AccessibilityCopy.skipOnboardingLabel)
+                .accessibilityHint(AccessibilityCopy.skipOnboardingHint)
             }
 
             Spacer(minLength: 0)

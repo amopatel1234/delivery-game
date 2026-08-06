@@ -17,19 +17,21 @@ struct MainMenuView: View {
                 Image(systemName: "shippingbox.fill")
                     .font(.system(size: 48, weight: .bold))
                     .foregroundStyle(GridPalette.accent)
+                    .accessibilityHidden(true)
 
                 Text("Couriers Gambit")
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .font(.largeTitle.weight(.bold))
                     .foregroundStyle(GridPalette.ink)
 
                 Text("Plan the route. Beat the clock.")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.body.weight(.medium))
                     .foregroundStyle(GridPalette.mutedInk)
+                    .multilineTextAlignment(.center)
             }
 
             Button(action: onStartGame) {
-                Text("Start Game")
-                    .font(.system(size: 18, weight: .semibold))
+                Text(AccessibilityCopy.startGameLabel)
+                    .font(.headline.weight(.semibold))
                     .foregroundStyle(GridPalette.canvas)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
@@ -39,19 +41,23 @@ struct MainMenuView: View {
                     )
             }
             .accessibilityIdentifier(GridAccessibilityID.startGameButton)
+            .accessibilityLabel(AccessibilityCopy.startGameLabel)
+            .accessibilityHint(AccessibilityCopy.startGameHint)
 
             if showsResetOnboarding, let onResetOnboarding {
                 Button("Reset Onboarding", action: onResetOnboarding)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(GridPalette.mutedInk)
                     .accessibilityIdentifier(GridAccessibilityID.resetOnboardingButton)
                     .accessibilityLabel("Reset onboarding")
+                    .accessibilityHint("Clears How to Play completion so it appears again.")
             }
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GridPalette.canvas.ignoresSafeArea())
         .accessibilityIdentifier(GridAccessibilityID.mainMenu)
+        .dynamicTypeSize(...DynamicTypeSize.accessibility3)
     }
 }
 

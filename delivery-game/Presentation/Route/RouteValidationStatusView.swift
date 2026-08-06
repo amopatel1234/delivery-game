@@ -16,7 +16,7 @@ struct RouteValidationStatusView: View {
                 .foregroundStyle(validation.isComplete ? GridPalette.depot : GridPalette.mutedInk)
 
             Text(message)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(validation.isComplete ? GridPalette.depot : GridPalette.mutedInk)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -28,6 +28,11 @@ struct RouteValidationStatusView: View {
         )
         .accessibilityIdentifier(GridAccessibilityID.routeValidationStatus)
         .accessibilityLabel(message)
+        .accessibilityHint(
+            validation.isComplete
+                ? "Confirm Route is available."
+                : "Continue adding orthogonal cards until you reach the Destination."
+        )
     }
 
     private var message: String {

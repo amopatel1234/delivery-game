@@ -13,7 +13,7 @@ struct RouteConfirmButton: View {
     var body: some View {
         Button(action: action) {
             Label("Confirm Route", systemImage: "checkmark.circle.fill")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(isEnabled ? GridPalette.canvas : GridPalette.mutedInk)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -24,7 +24,8 @@ struct RouteConfirmButton: View {
         }
         .disabled(!isEnabled)
         .accessibilityIdentifier(GridAccessibilityID.confirmRouteButton)
-        .accessibilityLabel("Confirm route")
+        .accessibilityLabel(AccessibilityCopy.confirmLabel)
+        .accessibilityHint(isEnabled ? AccessibilityCopy.confirmHint : AccessibilityCopy.confirmDisabledHint)
     }
 }
 
